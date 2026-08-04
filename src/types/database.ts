@@ -80,6 +80,7 @@ export interface Answer {
   selected_option: OptionLetter | null;
   marked_for_review: boolean;
   answered_at: string;
+  time_spent_seconds: number;
 }
 
 export interface ProctoringLog {

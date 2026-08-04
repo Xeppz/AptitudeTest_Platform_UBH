@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useMediaStream } from "@/components/proctoring/useMediaStream";
 import { CameraPreview } from "@/components/proctoring/CameraPreview";
-import { logViolation, saveAnswer, submitTest } from "../actions";
+import { addTimeSpent, logViolation, saveAnswer, submitTest } from "../actions";
 import type { Answer, OptionLetter, QuestionForStudent, Test, TestSession, ViolationType } from "@/types/database";
 import type * as FaceApi from "@vladmandic/face-api";
 
@@ -65,6 +65,35 @@ export function TestRunner({
 
   const submittedRef = useRef(false);
   const lastFlagRef = useRef(0);
+  const questionStartRef = useRef<number | null>(null);
+
+  // Set on mount rather than in a useRef(Date.now()) initializer — calling
+  // an impure function during render trips the react-hooks/purity lint rule.
+  useEffect(() => {
+    questionStartRef.current = Date.now();
+  }, []);
+
+  const flushTimeForQuestion = useCallback(
+    (index: number) => {
+      const q = questions[index];
+      const startedAt = questionStartRef.current;
+      if (!q || startedAt === null) return;
+      const elapsedSeconds = (Date.now() - startedAt) / 1000;
+      if (elapsedSeconds >= 1) {
+        addTimeSpent(session.id, q.id, elapsedSeconds).catch(() => {});
+      }
+    },
+    [questions, session.id],
+  );
+
+  const goToQuestion = useCallback(
+    (index: number) => {
+      flushTimeForQuestion(currentIndex);
+      questionStartRef.current = Date.now();
+      setCurrentIndex(index);
+    },
+    [currentIndex, flushTimeForQuestion],
+  );
 
   // session.started_at is always set once a session reaches "in_progress" (see startSession),
   // which is the only status this component renders for.
@@ -79,6 +108,7 @@ export function TestRunner({
   const finishTest = useCallback(async (reason: "manual" | "time" | "violations", message?: string) => {
     if (submittedRef.current) return;
     submittedRef.current = true;
+    flushTimeForQuestion(currentIndex);
 
     if (reason !== "violations") {
       try {
@@ -95,7 +125,7 @@ export function TestRunner({
     if (document.fullscreenElement) {
       document.exitFullscreen().catch(() => {});
     }
-  }, [session.id]);
+  }, [session.id, currentIndex, flushTimeForQuestion]);
 
   const reportViolation = useCallback(
     async (type: ViolationType) => {
@@ -383,7 +413,7 @@ export function TestRunner({
             return (
               <button
                 key={q.id}
-                onClick={() => setCurrentIndex(index)}
+                onClick={() => goToQuestion(index)}
                 className={`h-8 w-8 rounded-md text-xs font-medium ${color} ${
                   isCurrent ? "ring-2 ring-blue-500" : ""
                 }`}
@@ -440,14 +470,14 @@ export function TestRunner({
 
               <div className="flex gap-2">
                 <button
-                  onClick={() => setCurrentIndex((i) => Math.max(0, i - 1))}
+                  onClick={() => goToQuestion(Math.max(0, currentIndex - 1))}
                   disabled={currentIndex === 0}
                   className="rounded-md border border-slate-300 px-3 py-1.5 text-xs text-slate-700 hover:bg-slate-50 disabled:opacity-40"
                 >
                   Previous
                 </button>
                 <button
-                  onClick={() => setCurrentIndex((i) => Math.min(questions.length - 1, i + 1))}
+                  onClick={() => goToQuestion(Math.min(questions.length - 1, currentIndex + 1))}
                   disabled={currentIndex === questions.length - 1}
                   className="rounded-md border border-slate-300 px-3 py-1.5 text-xs text-slate-700 hover:bg-slate-50 disabled:opacity-40"
                 >

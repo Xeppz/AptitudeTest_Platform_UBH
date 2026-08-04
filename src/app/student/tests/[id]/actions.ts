@@ -70,6 +70,22 @@ export async function saveAnswer(
 }
 
 /**
+ * Uses the increment_answer_time RPC (see 0007_add_answer_time_tracking.sql)
+ * rather than a plain update(), since this fires on every question switch and
+ * a read-then-write from the client would race against itself.
+ */
+export async function addTimeSpent(sessionId: string, questionId: string, seconds: number) {
+  if (seconds <= 0) return;
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("increment_answer_time", {
+    p_session_id: sessionId,
+    p_question_id: questionId,
+    p_seconds: Math.round(seconds),
+  });
+  if (error) throw new Error(error.message);
+}
+
+/**
  * Writes go through the service-role client on purpose — proctoring_logs and
  * violations have no client insert policy, so a student can't tamper with
  * their own flag trail from devtools. Ownership is verified with the
