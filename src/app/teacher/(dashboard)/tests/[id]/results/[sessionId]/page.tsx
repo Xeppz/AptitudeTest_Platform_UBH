@@ -1,0 +1,100 @@
+import Link from "next/link";
+import { notFound, redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
+import { computeScore } from "@/lib/scoring";
+import { QuestionReviewCard } from "@/components/QuestionReviewCard";
+import type { Answer, Profile, ProctoringLog, Question, Test, TestSession } from "@/types/database";
+
+export default async function StudentResultDetailPage({
+  params,
+}: {
+  params: Promise<{ id: string; sessionId: string }>;
+}) {
+  const { id, sessionId } = await params;
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  const { data: testData } = await supabase.from("tests").select("*").eq("id", id).single();
+  const test = testData as Test | null;
+  if (!test || test.teacher_id !== user.id) notFound();
+
+  const { data: sessionData } = await supabase
+    .from("test_sessions")
+    .select("*")
+    .eq("id", sessionId)
+    .eq("test_id", id)
+    .single();
+  const session = sessionData as TestSession | null;
+  if (!session || (session.status !== "submitted" && session.status !== "auto_submitted")) notFound();
+
+  const { data: profileData } = await supabase.from("profiles").select("*").eq("id", session.student_id).single();
+  const profile = profileData as Profile | null;
+
+  const { data: questionsData } = await supabase
+    .from("questions")
+    .select("*")
+    .eq("test_id", id)
+    .order("order_index", { ascending: true });
+  const questions = (questionsData as Question[] | null) ?? [];
+
+  const { data: answersData } = await supabase.from("answers").select("*").eq("session_id", sessionId);
+  const answers = (answersData as Answer[] | null) ?? [];
+
+  const score = computeScore(questions, answers, test);
+
+  const { data: logsData } = await supabase
+    .from("proctoring_logs")
+    .select("*")
+    .eq("session_id", sessionId)
+    .order("created_at", { ascending: true });
+  const logs = (logsData as ProctoringLog[] | null) ?? [];
+
+  return (
+    <div className="max-w-3xl">
+      <Link href={`/teacher/tests/${id}/results`} className="text-sm text-slate-500 hover:text-slate-700">
+        ← Back to results
+      </Link>
+
+      <div className="mt-2 flex items-start justify-between">
+        <div>
+          <p className="text-2xl font-semibold text-slate-900">{profile?.full_name ?? "Unknown student"}</p>
+          <p className="mt-1 text-sm text-slate-500">
+            {profile?.email} ·{" "}
+            {session.submitted_at ? new Date(session.submitted_at).toLocaleString() : "—"}
+          </p>
+        </div>
+        <div className="text-right">
+          <p className="text-2xl font-semibold text-blue-600">
+            {score.totalScore} / {score.maxScore}
+          </p>
+          <p className="text-xs text-slate-500">
+            {score.correctCount} correct · {score.incorrectCount} incorrect · {score.unansweredCount} unanswered
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-6 rounded-lg border border-slate-200 bg-white p-4">
+        <p className="text-sm font-medium text-slate-700">
+          Flag history ({session.violation_count} violation{session.violation_count === 1 ? "" : "s"})
+        </p>
+        <div className="mt-2 flex flex-col gap-1">
+          {logs.map((log) => (
+            <p key={log.id} className="text-xs text-slate-500">
+              {new Date(log.created_at).toLocaleTimeString()} — {log.event_type.replace(/_/g, " ")}
+            </p>
+          ))}
+          {logs.length === 0 && <p className="text-xs text-slate-400">No proctoring events logged.</p>}
+        </div>
+      </div>
+
+      <div className="mt-6 flex flex-col gap-3">
+        {score.perQuestion.map((r, index) => (
+          <QuestionReviewCard key={r.question.id} result={r} index={index} selectedLabel="their answer" />
+        ))}
+      </div>
+    </div>
+  );
+}

@@ -62,16 +62,27 @@ export default async function TeacherDashboard() {
 
       <div className="mt-3 flex flex-col gap-2">
         {tests.map((test) => (
-          <Link
+          <div
             key={test.id}
-            href={`/teacher/tests/${test.id}/review`}
             className="flex items-center justify-between rounded-lg border border-slate-200 bg-white px-4 py-3 hover:border-slate-300"
           >
-            <span className="text-sm font-medium text-slate-900">{test.title}</span>
-            <span className={`rounded-md px-2.5 py-1 text-xs font-medium ${STATUS_STYLE[test.status]}`}>
-              {test.status}
-            </span>
-          </Link>
+            <Link href={`/teacher/tests/${test.id}/review`} className="text-sm font-medium text-slate-900">
+              {test.title}
+            </Link>
+            <div className="flex items-center gap-3">
+              {test.status === "published" && (
+                <Link
+                  href={`/teacher/tests/${test.id}/results`}
+                  className="text-xs font-medium text-blue-600 hover:underline"
+                >
+                  Results
+                </Link>
+              )}
+              <span className={`rounded-md px-2.5 py-1 text-xs font-medium ${STATUS_STYLE[test.status]}`}>
+                {test.status}
+              </span>
+            </div>
+          </div>
         ))}
         {tests.length === 0 && (
           <p className="text-sm text-slate-500">No tests yet — create your first one above.</p>

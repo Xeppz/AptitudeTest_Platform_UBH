@@ -3,16 +3,8 @@ import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { computeScore } from "@/lib/scoring";
-import type { Answer, OptionLetter, Question, Test, TestSession } from "@/types/database";
-
-const OPTION_LETTERS: OptionLetter[] = ["A", "B", "C", "D"];
-
-function formatSeconds(totalSeconds: number) {
-  if (totalSeconds < 60) return `${totalSeconds}s`;
-  const m = Math.floor(totalSeconds / 60);
-  const s = totalSeconds % 60;
-  return `${m}m ${s}s`;
-}
+import { QuestionReviewCard, formatSeconds } from "@/components/QuestionReviewCard";
+import type { Answer, Question, Test, TestSession } from "@/types/database";
 
 export default async function ResultDetailPage({
   params,
@@ -102,56 +94,7 @@ export default async function ResultDetailPage({
 
       <div className="mt-6 flex flex-col gap-3">
         {score.perQuestion.map((r, index) => (
-          <div key={r.question.id} className="rounded-lg border border-slate-200 bg-white p-4">
-            <div className="flex items-center justify-between">
-              <span className="text-xs text-slate-500">
-                Question {index + 1} · {r.question.category}
-              </span>
-              <div className="flex items-center gap-2 text-xs">
-                <span className="text-slate-400">{formatSeconds(r.timeSpentSeconds)}</span>
-                <span
-                  className={`rounded-md px-2 py-0.5 font-medium ${
-                    r.isCorrect
-                      ? "bg-emerald-50 text-emerald-700"
-                      : r.isAnswered
-                        ? "bg-red-50 text-red-700"
-                        : "bg-slate-100 text-slate-500"
-                  }`}
-                >
-                  {r.isCorrect ? "Correct" : r.isAnswered ? "Incorrect" : "Unanswered"} ·{" "}
-                  {r.marksAwarded >= 0 ? "+" : ""}
-                  {r.marksAwarded}
-                </span>
-              </div>
-            </div>
-
-            <p className="mt-2 text-sm text-slate-900">{r.question.question_text}</p>
-
-            <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
-              {OPTION_LETTERS.map((letter) => {
-                const key = `option_${letter.toLowerCase()}` as keyof Question;
-                const isCorrectOption = letter === r.question.correct_option;
-                const isSelected = letter === r.selectedOption;
-                return (
-                  <div
-                    key={letter}
-                    className={`rounded-md border px-3 py-2 text-sm ${
-                      isCorrectOption
-                        ? "border-emerald-300 bg-emerald-50 text-emerald-800"
-                        : isSelected
-                          ? "border-red-300 bg-red-50 text-red-800"
-                          : "border-slate-200 bg-white text-slate-700"
-                    }`}
-                  >
-                    <span className="mr-2 text-slate-400">{letter}</span>
-                    {r.question[key] as string}
-                    {isCorrectOption && <span className="ml-2 text-xs">(correct)</span>}
-                    {isSelected && !isCorrectOption && <span className="ml-2 text-xs">(your answer)</span>}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
+          <QuestionReviewCard key={r.question.id} result={r} index={index} />
         ))}
       </div>
     </div>
