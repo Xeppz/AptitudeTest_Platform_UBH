@@ -26,11 +26,11 @@ export function PublishButton({ testId }: { testId: string }) {
       <button
         onClick={handlePublish}
         disabled={publishing}
-        className="rounded bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-500 disabled:opacity-50"
+        className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-50"
       >
         {publishing ? "Publishing…" : "Publish test"}
       </button>
-      {error && <p className="mt-2 text-xs text-red-400">{error}</p>}
+      {error && <p className="mt-2 text-xs text-red-600">{error}</p>}
     </div>
   );
 }
