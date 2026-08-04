@@ -12,20 +12,20 @@ export async function signUp(formData: FormData) {
   const email = String(formData.get("email") ?? "");
   const password = String(formData.get("password") ?? "");
   const fullName = String(formData.get("fullName") ?? "");
-  const role = String(formData.get("role") ?? "student") as UserRole;
 
   if (!email || !password || !fullName) {
     redirect(`/signup?error=${encodeURIComponent("All fields are required.")}`);
   }
-  if (role !== "teacher" && role !== "student") {
-    redirect(`/signup?error=${encodeURIComponent("Invalid role.")}`);
-  }
 
+  // Public self-signup can only ever create students — never trust a role value
+  // from the client here. Teacher/admin accounts are promoted separately by
+  // trusted server-side code (see the profiles.role column-privilege lockdown
+  // in supabase/migrations/0006_lock_profile_role_column.sql).
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
-    options: { data: { full_name: fullName, role } },
+    options: { data: { full_name: fullName, role: "student" } },
   });
 
   if (error) {
@@ -36,7 +36,7 @@ export async function signUp(formData: FormData) {
     redirect("/login?message=Check your email to confirm your account, then log in.");
   }
 
-  redirect(dashboardPathForRole(role));
+  redirect(dashboardPathForRole("student"));
 }
 
 export async function signIn(formData: FormData) {
