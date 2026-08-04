@@ -9,20 +9,20 @@ export default async function SignupPage({
   const { error } = await searchParams;
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-neutral-950 px-4">
-      <div className="w-full max-w-sm rounded-lg border border-neutral-800 bg-neutral-900 p-8">
-        <h1 className="text-xl font-semibold text-neutral-100">Sign up</h1>
-        <p className="mt-1 text-sm text-neutral-400">Aptitude Test Platform</p>
+    <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
+      <div className="w-full max-w-sm rounded-xl border border-slate-200 bg-white p-8 shadow-sm">
+        <h1 className="text-xl font-semibold text-slate-900">Sign up</h1>
+        <p className="mt-1 text-sm text-slate-500">Aptitude Test Platform</p>
 
         {error && (
-          <p className="mt-4 rounded border border-red-800 bg-red-950 px-3 py-2 text-sm text-red-300">
+          <p className="mt-4 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
             {error}
           </p>
         )}
 
         <form action={signUp} className="mt-6 flex flex-col gap-4">
           <div>
-            <label htmlFor="fullName" className="block text-sm text-neutral-300">
+            <label htmlFor="fullName" className="block text-sm text-slate-700">
               Full name
             </label>
             <input
@@ -30,11 +30,11 @@ export default async function SignupPage({
               name="fullName"
               type="text"
               required
-              className="mt-1 w-full rounded border border-neutral-700 bg-neutral-800 px-3 py-2 text-neutral-100 outline-none focus:border-neutral-500"
+              className="mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
             />
           </div>
           <div>
-            <label htmlFor="email" className="block text-sm text-neutral-300">
+            <label htmlFor="email" className="block text-sm text-slate-700">
               Email
             </label>
             <input
@@ -42,11 +42,11 @@ export default async function SignupPage({
               name="email"
               type="email"
               required
-              className="mt-1 w-full rounded border border-neutral-700 bg-neutral-800 px-3 py-2 text-neutral-100 outline-none focus:border-neutral-500"
+              className="mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
             />
           </div>
           <div>
-            <label htmlFor="password" className="block text-sm text-neutral-300">
+            <label htmlFor="password" className="block text-sm text-slate-700">
               Password
             </label>
             <input
@@ -55,20 +55,20 @@ export default async function SignupPage({
               type="password"
               required
               minLength={6}
-              className="mt-1 w-full rounded border border-neutral-700 bg-neutral-800 px-3 py-2 text-neutral-100 outline-none focus:border-neutral-500"
+              className="mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
             />
           </div>
           <button
             type="submit"
-            className="mt-2 rounded bg-neutral-100 px-3 py-2 text-sm font-medium text-neutral-900 hover:bg-white"
+            className="mt-2 rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700"
           >
             Create account
           </button>
         </form>
 
-        <p className="mt-6 text-center text-sm text-neutral-400">
+        <p className="mt-6 text-center text-sm text-slate-500">
           Already have an account?{" "}
-          <Link href="/login" className="text-neutral-200 underline">
+          <Link href="/login" className="text-blue-600 underline">
             Log in
           </Link>
         </p>

@@ -313,17 +313,17 @@ export function TestRunner({
 
   if (submitted) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-neutral-950 p-8 text-neutral-100">
-        <div className="w-full max-w-md rounded-lg border border-neutral-800 bg-neutral-900 p-8 text-center">
-          <h1 className="text-xl font-semibold">
+      <div className="flex min-h-screen items-center justify-center bg-slate-50 p-8">
+        <div className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-8 text-center shadow-sm">
+          <h1 className="text-xl font-semibold text-slate-900">
             {autoSubmittedReason ? "Test auto-submitted" : "Test submitted"}
           </h1>
-          <p className="mt-2 text-sm text-neutral-400">
+          <p className="mt-2 text-sm text-slate-500">
             {autoSubmittedReason ?? "Your answers have been recorded."}
           </p>
           <a
             href="/student"
-            className="mt-6 inline-block rounded bg-neutral-100 px-4 py-2 text-sm font-medium text-neutral-900 hover:bg-white"
+            className="mt-6 inline-block rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
           >
             Back to dashboard
           </a>
@@ -336,17 +336,17 @@ export function TestRunner({
   const answered = questions.filter((q) => answers[q.id]?.selected).length;
 
   return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-100">
+    <div className="min-h-screen bg-slate-50">
       {warning && (
-        <div className="fixed left-1/2 top-4 z-50 -translate-x-1/2 rounded border border-amber-700 bg-amber-950 px-4 py-2 text-sm text-amber-200 shadow-lg">
+        <div className="fixed left-1/2 top-4 z-50 -translate-x-1/2 rounded-md border border-amber-200 bg-amber-50 px-4 py-2 text-sm text-amber-800 shadow-md">
           {warning}
         </div>
       )}
 
-      <div className="flex items-center justify-between border-b border-neutral-800 px-6 py-3">
+      <div className="flex items-center justify-between border-b border-slate-200 bg-white px-6 py-3">
         <div>
-          <h1 className="text-sm font-semibold">{test.title}</h1>
-          <p className="text-xs text-neutral-500">
+          <h1 className="text-sm font-semibold text-slate-900">{test.title}</h1>
+          <p className="text-xs text-slate-500">
             {answered}/{questions.length} answered · {violationCount}/{test.max_violations} violations
           </p>
         </div>
@@ -354,16 +354,16 @@ export function TestRunner({
           <CameraPreview
             stream={stream}
             videoRef={videoRef}
-            className="h-14 w-20 rounded border border-neutral-700 bg-black object-cover"
+            className="h-14 w-20 rounded-md border border-slate-200 bg-slate-900 object-cover"
           />
-          <span className="font-mono text-lg tabular-nums text-neutral-100">{formatTime(remainingSeconds)}</span>
+          <span className="font-mono text-lg tabular-nums text-slate-900">{formatTime(remainingSeconds)}</span>
           <button
             onClick={() => {
               if (window.confirm("Submit the test now? You cannot change answers after submitting.")) {
                 finishTest("manual");
               }
             }}
-            className="rounded bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-500"
+            className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
           >
             Submit test
           </button>
@@ -376,16 +376,16 @@ export function TestRunner({
             const state = answers[q.id];
             const isCurrent = index === currentIndex;
             const color = state?.marked
-              ? "bg-purple-700 text-white"
+              ? "bg-purple-600 text-white"
               : state?.selected
-                ? "bg-emerald-700 text-white"
-                : "bg-neutral-800 text-neutral-300";
+                ? "bg-blue-600 text-white"
+                : "bg-white text-slate-600 ring-1 ring-slate-200";
             return (
               <button
                 key={q.id}
                 onClick={() => setCurrentIndex(index)}
-                className={`h-8 w-8 rounded text-xs font-medium ${color} ${
-                  isCurrent ? "ring-2 ring-neutral-100" : ""
+                className={`h-8 w-8 rounded-md text-xs font-medium ${color} ${
+                  isCurrent ? "ring-2 ring-blue-500" : ""
                 }`}
               >
                 {index + 1}
@@ -395,17 +395,17 @@ export function TestRunner({
         </div>
 
         {question && (
-          <div className="rounded border border-neutral-800 bg-neutral-900 p-5">
+          <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
             <div className="flex items-center justify-between">
-              <span className="text-xs text-neutral-500">
+              <span className="text-xs text-slate-500">
                 Question {currentIndex + 1} of {questions.length}
               </span>
-              <span className="rounded bg-neutral-800 px-2 py-0.5 text-xs text-neutral-300">
+              <span className="rounded-md bg-blue-50 px-2 py-0.5 text-xs text-blue-700">
                 {question.category}
               </span>
             </div>
 
-            <p className="mt-3 text-base text-neutral-100">{question.question_text}</p>
+            <p className="mt-3 text-base text-slate-900">{question.question_text}</p>
 
             <div className="mt-4 flex flex-col gap-2">
               {OPTION_LETTERS.map((letter) => {
@@ -415,21 +415,21 @@ export function TestRunner({
                   <button
                     key={letter}
                     onClick={() => selectOption(question.id, letter)}
-                    className={`flex items-center gap-3 rounded border px-3 py-2 text-left text-sm ${
+                    className={`flex items-center gap-3 rounded-md border px-3 py-2 text-left text-sm ${
                       isSelected
-                        ? "border-neutral-100 bg-neutral-800"
-                        : "border-neutral-700 bg-neutral-900 hover:border-neutral-600"
+                        ? "border-blue-500 bg-blue-50"
+                        : "border-slate-200 bg-white hover:border-slate-300"
                     }`}
                   >
-                    <span className="text-neutral-500">{letter}</span>
-                    <span>{question[key] as string}</span>
+                    <span className="text-slate-400">{letter}</span>
+                    <span className="text-slate-900">{question[key] as string}</span>
                   </button>
                 );
               })}
             </div>
 
             <div className="mt-4 flex items-center justify-between">
-              <label className="flex items-center gap-2 text-xs text-neutral-400">
+              <label className="flex items-center gap-2 text-xs text-slate-500">
                 <input
                   type="checkbox"
                   checked={answers[question.id]?.marked ?? false}
@@ -442,14 +442,14 @@ export function TestRunner({
                 <button
                   onClick={() => setCurrentIndex((i) => Math.max(0, i - 1))}
                   disabled={currentIndex === 0}
-                  className="rounded border border-neutral-700 px-3 py-1.5 text-xs text-neutral-200 hover:bg-neutral-800 disabled:opacity-40"
+                  className="rounded-md border border-slate-300 px-3 py-1.5 text-xs text-slate-700 hover:bg-slate-50 disabled:opacity-40"
                 >
                   Previous
                 </button>
                 <button
                   onClick={() => setCurrentIndex((i) => Math.min(questions.length - 1, i + 1))}
                   disabled={currentIndex === questions.length - 1}
-                  className="rounded border border-neutral-700 px-3 py-1.5 text-xs text-neutral-200 hover:bg-neutral-800 disabled:opacity-40"
+                  className="rounded-md border border-slate-300 px-3 py-1.5 text-xs text-slate-700 hover:bg-slate-50 disabled:opacity-40"
                 >
                   Next
                 </button>

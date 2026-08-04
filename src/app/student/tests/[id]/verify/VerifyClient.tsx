@@ -44,36 +44,36 @@ export function VerifyClient({
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-neutral-950 p-8 text-neutral-100">
-      <div className="w-full max-w-md rounded-lg border border-neutral-800 bg-neutral-900 p-8">
-        <h1 className="text-xl font-semibold">{title}</h1>
-        <p className="mt-1 text-sm text-neutral-400">
+    <div className="flex min-h-screen items-center justify-center bg-slate-50 p-8">
+      <div className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-8 shadow-sm">
+        <h1 className="text-xl font-semibold text-slate-900">{title}</h1>
+        <p className="mt-1 text-sm text-slate-500">
           {durationMinutes} minutes · camera and microphone verification required
         </p>
 
         <div className="mt-6">
-          <CameraPreview stream={stream} className="aspect-video w-full rounded border border-neutral-700 bg-black" />
+          <CameraPreview stream={stream} className="aspect-video w-full rounded-lg border border-slate-200 bg-slate-900" />
         </div>
 
         <div className="mt-3">
-          <p className="text-xs text-neutral-500">Microphone level</p>
+          <p className="text-xs text-slate-500">Microphone level</p>
           <div className="mt-1">
             <AudioLevelMeter stream={stream} />
           </div>
         </div>
 
         {mediaError && (
-          <p className="mt-4 rounded border border-red-800 bg-red-950 px-3 py-2 text-sm text-red-300">
+          <p className="mt-4 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
             {mediaError} Check your browser&apos;s camera/microphone permissions and reload this page.
           </p>
         )}
         {startError && (
-          <p className="mt-4 rounded border border-red-800 bg-red-950 px-3 py-2 text-sm text-red-300">
+          <p className="mt-4 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
             {startError}
           </p>
         )}
 
-        <ul className="mt-4 space-y-1 text-xs text-neutral-500">
+        <ul className="mt-4 space-y-1 text-xs text-slate-500">
           <li>The test runs in fullscreen. Exiting fullscreen is logged as a violation.</li>
           <li>Switching tabs or windows is logged as a violation.</li>
           <li>Turning off your camera or microphone mid-test is logged as a violation.</li>
@@ -86,7 +86,7 @@ export function VerifyClient({
         <button
           onClick={handleStart}
           disabled={!ready || starting}
-          className="mt-6 w-full rounded bg-neutral-100 px-3 py-2 text-sm font-medium text-neutral-900 hover:bg-white disabled:opacity-50"
+          className="mt-6 w-full rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
         >
           {starting ? "Starting…" : ready ? "Start test" : "Waiting for camera/microphone…"}
         </button>
