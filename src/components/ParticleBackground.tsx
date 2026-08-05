@@ -1,5 +1,4 @@
 "use client";
-
 import { useEffect, useRef } from "react";
 
 interface Particle {
@@ -10,10 +9,14 @@ interface Particle {
   radius: number;
 }
 
-const PARTICLE_COUNT = 110;
-const POINTER_RADIUS = 140;
-const POINTER_FORCE = 0.035;
-const DRIFT_SPEED = 0.15;
+const PARTICLE_COUNT = 90;
+const LINK_DISTANCE = 130;
+const POINTER_LINK_DISTANCE = 160;
+const POINTER_RADIUS = 160;
+const POINTER_FORCE = 0.01;
+const DRIFT_SPEED = 0.25;
+const DOT_COLOR = "37, 99, 235"; // blue-600
+const LINE_COLOR = "96, 165, 250"; // blue-400
 
 export function ParticleBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -48,7 +51,7 @@ export function ParticleBackground() {
       y: Math.random() * height,
       vx: (Math.random() - 0.5) * DRIFT_SPEED,
       vy: (Math.random() - 0.5) * DRIFT_SPEED,
-      radius: 1 + Math.random() * 2,
+      radius: 1 + Math.random() * 1.5,
     }));
 
     const pointer = { x: -9999, y: -9999, active: false };
@@ -75,11 +78,44 @@ export function ParticleBackground() {
     window.addEventListener("touchmove", onTouchMove, { passive: true });
     window.addEventListener("touchend", clearPointer);
 
-    let frameId: number;
+    function drawLinks() {
+      for (let i = 0; i < particles.length; i++) {
+        const a = particles[i];
 
-    function step() {
-      ctx!.clearRect(0, 0, width, height);
+        for (let j = i + 1; j < particles.length; j++) {
+          const b = particles[j];
+          const dx = a.x - b.x;
+          const dy = a.y - b.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < LINK_DISTANCE) {
+            const alpha = (1 - dist / LINK_DISTANCE) * 0.35;
+            ctx!.strokeStyle = `rgba(${LINE_COLOR}, ${alpha})`;
+            ctx!.lineWidth = 1;
+            ctx!.beginPath();
+            ctx!.moveTo(a.x, a.y);
+            ctx!.lineTo(b.x, b.y);
+            ctx!.stroke();
+          }
+        }
 
+        if (pointer.active) {
+          const dx = a.x - pointer.x;
+          const dy = a.y - pointer.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < POINTER_LINK_DISTANCE) {
+            const alpha = (1 - dist / POINTER_LINK_DISTANCE) * 0.6;
+            ctx!.strokeStyle = `rgba(${LINE_COLOR}, ${alpha})`;
+            ctx!.lineWidth = 1;
+            ctx!.beginPath();
+            ctx!.moveTo(a.x, a.y);
+            ctx!.lineTo(pointer.x, pointer.y);
+            ctx!.stroke();
+          }
+        }
+      }
+    }
+
+    function updateAndDrawDots() {
       for (const p of particles) {
         if (pointer.active) {
           const dx = pointer.x - p.x;
@@ -93,8 +129,12 @@ export function ParticleBackground() {
         }
 
         // gentle drag so velocity doesn't accumulate indefinitely
-        p.vx *= 0.96;
-        p.vy *= 0.96;
+        p.vx *= 0.98;
+        p.vy *= 0.98;
+
+        // keep a baseline of random drift so particles never fully settle
+        p.vx += (Math.random() - 0.5) * 0.01;
+        p.vy += (Math.random() - 0.5) * 0.01;
 
         p.x += p.vx;
         p.y += p.vy;
@@ -106,21 +146,24 @@ export function ParticleBackground() {
 
         ctx!.beginPath();
         ctx!.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-        ctx!.fillStyle = "rgba(37, 99, 235, 0.75)"; // blue-600, brighter
+        ctx!.fillStyle = `rgba(${DOT_COLOR}, 0.8)`;
         ctx!.fill();
       }
+    }
 
+    let frameId: number;
+
+    function step() {
+      ctx!.clearRect(0, 0, width, height);
+      updateAndDrawDots();
+      drawLinks();
       frameId = requestAnimationFrame(step);
     }
 
     if (prefersReducedMotion) {
       // Draw one static frame instead of animating continuously.
-      for (const p of particles) {
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-        ctx.fillStyle = "rgba(37, 99, 235, 0.75)";
-        ctx.fill();
-      }
+      updateAndDrawDots();
+      drawLinks();
     } else {
       frameId = requestAnimationFrame(step);
     }
