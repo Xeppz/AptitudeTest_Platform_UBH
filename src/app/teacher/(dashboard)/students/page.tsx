@@ -1,8 +1,10 @@
 import { redirect, notFound } from "next/navigation";
 import { getAuthedProfile, getAuthedUser } from "@/lib/supabase/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
-import type { Profile, Test, TestSession } from "@/types/database";
+import { STUDENT_YEARS, STUDENT_YEAR_LABELS } from "@/lib/studentYear";
+import type { Profile, StudentYear, Test, TestSession } from "@/types/database";
 import { DeleteStudentButton } from "./DeleteStudentButton";
+import { YearFilter } from "./YearFilter";
 
 type StatusTone = "active" | "done" | "idle";
 
@@ -34,20 +36,36 @@ const TONE_STYLE: Record<StatusTone, string> = {
   idle: "bg-slate-100 text-slate-500",
 };
 
-export default async function StudentsPage() {
+export default async function StudentsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ year?: string }>;
+}) {
   const user = await getAuthedUser();
   if (!user) redirect("/login");
 
   const profile = await getAuthedProfile(user.id);
   if (profile?.role !== "admin") notFound();
 
+  const { year: yearParam } = await searchParams;
+  const yearFilter = (STUDENT_YEARS as string[]).includes(yearParam ?? "")
+    ? (yearParam as StudentYear)
+    : null;
+
   // Service-role client: this page needs visibility across every student and
   // every session regardless of which teacher owns the test, which RLS
   // doesn't grant by default (see supabase/migrations/0001_init.sql). Access
   // is gated above by the admin-role check, not by RLS, on purpose.
   const admin = createAdminClient();
+  let studentsQuery = admin
+    .from("profiles")
+    .select("*")
+    .eq("role", "student")
+    .order("created_at", { ascending: false });
+  if (yearFilter) studentsQuery = studentsQuery.eq("year", yearFilter);
+
   const [{ data: studentsData }, { data: sessionsData }, { data: testsData }] = await Promise.all([
-    admin.from("profiles").select("*").eq("role", "student").order("created_at", { ascending: false }),
+    studentsQuery,
     admin.from("test_sessions").select("*"),
     admin.from("tests").select("id, title"),
   ]);
@@ -66,10 +84,16 @@ export default async function StudentsPage() {
 
   return (
     <div>
-      <p className="text-2xl font-semibold text-slate-900">Students</p>
-      <p className="mt-1 text-sm text-slate-500">
-        {students.length} registered student{students.length === 1 ? "" : "s"}.
-      </p>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <p className="text-2xl font-semibold text-slate-900">Students</p>
+          <p className="mt-1 text-sm text-slate-500">
+            {students.length} registered student{students.length === 1 ? "" : "s"}
+            {yearFilter ? ` · ${STUDENT_YEAR_LABELS[yearFilter]}` : ""}.
+          </p>
+        </div>
+        <YearFilter />
+      </div>
 
       <div className="mt-6 overflow-x-auto rounded-lg border border-slate-200 bg-white">
         <table className="w-full text-sm">
@@ -77,6 +101,7 @@ export default async function StudentsPage() {
             <tr className="border-b border-slate-200 text-left text-xs text-slate-500">
               <th className="px-4 py-2 font-medium">Name</th>
               <th className="px-4 py-2 font-medium">Email</th>
+              <th className="px-4 py-2 font-medium">Year</th>
               <th className="px-4 py-2 font-medium">Registered</th>
               <th className="px-4 py-2 font-medium">Status</th>
               <th className="px-4 py-2 font-medium"></th>
@@ -89,6 +114,9 @@ export default async function StudentsPage() {
                 <tr key={s.id} className="border-b border-slate-100 last:border-0 hover:bg-slate-50">
                   <td className="px-4 py-2 font-medium text-slate-900">{s.full_name}</td>
                   <td className="px-4 py-2 text-slate-500">{s.email}</td>
+                  <td className="px-4 py-2 text-slate-500">
+                    {s.year ? STUDENT_YEAR_LABELS[s.year] : "—"}
+                  </td>
                   <td className="px-4 py-2 text-slate-500">
                     {new Date(s.created_at).toLocaleDateString()}
                   </td>
@@ -105,8 +133,8 @@ export default async function StudentsPage() {
             })}
             {students.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-4 py-6 text-center text-slate-500">
-                  No students registered yet.
+                <td colSpan={6} className="px-4 py-6 text-center text-slate-500">
+                  {yearFilter ? "No students in this year yet." : "No students registered yet."}
                 </td>
               </tr>
             )}

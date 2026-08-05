@@ -1,8 +1,9 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getAuthedUser } from "@/lib/supabase/auth";
+import { STUDENT_YEAR_LABELS, STUDENT_YEARS } from "@/lib/studentYear";
 import type { Profile } from "@/types/database";
-import { updateFullName } from "./actions";
+import { updateProfile } from "./actions";
 
 export default async function ProfilePage() {
   const user = await getAuthedUser();
@@ -18,7 +19,7 @@ export default async function ProfilePage() {
       <p className="mt-1 text-sm text-slate-500">Your account details.</p>
 
       <div className="mt-6 rounded-lg border border-slate-200 bg-white p-5">
-        <form action={updateFullName} className="flex flex-col gap-4">
+        <form action={updateProfile} className="flex flex-col gap-4">
           <div>
             <label htmlFor="fullName" className="block text-sm text-slate-700">
               Full name
@@ -31,6 +32,24 @@ export default async function ProfilePage() {
               defaultValue={profile?.full_name}
               className="mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
             />
+          </div>
+          <div>
+            <label htmlFor="year" className="block text-sm text-slate-700">
+              Year
+            </label>
+            <select
+              id="year"
+              name="year"
+              defaultValue={profile?.year ?? ""}
+              className="mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+            >
+              <option value="">Not set</option>
+              {STUDENT_YEARS.map((y) => (
+                <option key={y} value={y}>
+                  {STUDENT_YEAR_LABELS[y]}
+                </option>
+              ))}
+            </select>
           </div>
           <div>
             <label className="block text-sm text-slate-700">Email</label>

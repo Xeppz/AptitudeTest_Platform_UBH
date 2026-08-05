@@ -1,4 +1,5 @@
 export type UserRole = "admin" | "teacher" | "student";
+export type StudentYear = "second_year" | "third_year";
 export type TestStatus = "draft" | "published" | "archived";
 export type SessionStatus = "not_started" | "in_progress" | "submitted" | "auto_submitted";
 export type OptionLetter = "A" | "B" | "C" | "D";
@@ -18,6 +19,7 @@ export interface Profile {
   role: UserRole;
   full_name: string;
   email: string;
+  year: StudentYear | null;
   created_at: string;
 }
 
@@ -40,6 +42,7 @@ export interface Test {
   max_violations: number;
   status: TestStatus;
   source_pdf_path: string | null;
+  target_year: StudentYear | null;
   starts_at: string | null;
   ends_at: string | null;
   created_at: string;

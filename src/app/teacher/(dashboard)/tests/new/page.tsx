@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { STUDENT_YEAR_LABELS, STUDENT_YEARS } from "@/lib/studentYear";
 
 const FORMAT_EXAMPLE = `Q: What is 15% of 200?
 A) 20
@@ -82,6 +83,25 @@ export default function NewTestPage() {
             rows={2}
             className="mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
           />
+        </div>
+
+        <div>
+          <label htmlFor="targetYear" className="block text-sm text-slate-700">
+            Publish for
+          </label>
+          <select
+            id="targetYear"
+            name="targetYear"
+            defaultValue=""
+            className="mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+          >
+            <option value="">All years</option>
+            {STUDENT_YEARS.map((y) => (
+              <option key={y} value={y}>
+                {STUDENT_YEAR_LABELS[y]} only
+              </option>
+            ))}
+          </select>
         </div>
 
         <div className="grid grid-cols-2 gap-4">

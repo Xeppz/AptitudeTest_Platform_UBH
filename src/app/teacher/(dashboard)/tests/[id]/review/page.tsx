@@ -2,6 +2,7 @@ import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getAuthedUser } from "@/lib/supabase/auth";
+import { STUDENT_YEAR_LABELS } from "@/lib/studentYear";
 import type { Question, Test } from "@/types/database";
 import { QuestionEditor } from "./QuestionEditor";
 import { PublishButton } from "./PublishButton";
@@ -34,7 +35,8 @@ export default async function ReviewTestPage({
         <div>
           <p className="text-2xl font-semibold text-slate-900">{test.title}</p>
           <p className="text-sm text-slate-500">
-            {questions.length} question{questions.length === 1 ? "" : "s"} · status: {test.status}
+            {questions.length} question{questions.length === 1 ? "" : "s"} · status: {test.status} · publishing
+            for: {test.target_year ? STUDENT_YEAR_LABELS[test.target_year] : "all years"}
           </p>
         </div>
         {test.status === "draft" && <PublishButton testId={test.id} />}

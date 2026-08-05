@@ -1,7 +1,8 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { parseQuestionsText } from "@/lib/questions/parseQuestionsText";
-import type { Profile } from "@/types/database";
+import { STUDENT_YEARS } from "@/lib/studentYear";
+import type { Profile, StudentYear } from "@/types/database";
 
 export async function POST(request: NextRequest) {
   const supabase = await createClient();
@@ -26,6 +27,10 @@ export async function POST(request: NextRequest) {
   const negativeMarks = Number(formData.get("negativeMarks") ?? 0);
   const maxViolations = Number(formData.get("maxViolations") ?? 3);
   const pastedText = String(formData.get("pastedText") ?? "").trim();
+  const targetYearRaw = String(formData.get("targetYear") ?? "");
+  const targetYear = (STUDENT_YEARS as string[]).includes(targetYearRaw)
+    ? (targetYearRaw as StudentYear)
+    : null;
 
   if (!title || !durationMinutes || durationMinutes <= 0) {
     return NextResponse.json(
@@ -58,6 +63,7 @@ export async function POST(request: NextRequest) {
       positive_marks: positiveMarks,
       negative_marks: negativeMarks,
       max_violations: maxViolations,
+      target_year: targetYear,
       status: "draft",
     })
     .select("id")
