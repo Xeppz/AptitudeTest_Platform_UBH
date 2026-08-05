@@ -7,9 +7,22 @@ import { addTimeSpent, logViolation, saveAnswer, submitTest } from "../actions";
 import type { Answer, OptionLetter, QuestionForStudent, Test, TestSession, ViolationType } from "@/types/database";
 import type * as FaceApi from "@vladmandic/face-api";
 
-const FACE_CHECK_INTERVAL_MS = 3000;
-const NO_FACE_STREAK_TO_FLAG = 3; // ~9s of no face before flagging
-const MULTI_FACE_STREAK_TO_FLAG = 2; // ~6s of multiple faces before flagging
+// Checked frequently and flagged on the first bad reading (streak of 1) so
+// looking away/sideways/up registers almost immediately rather than needing
+// several seconds of sustained absence. This trades away tolerance for a
+// single bad camera frame (e.g. a blink) for responsiveness, per instruction.
+const FACE_CHECK_INTERVAL_MS = 1000;
+const NO_FACE_STREAK_TO_FLAG = 1;
+const MULTI_FACE_STREAK_TO_FLAG = 1;
+const LOOKING_AWAY_STREAK_TO_FLAG = 1;
+
+// Heuristic gaze thresholds from 68-point face landmarks — not true 3D head
+// pose estimation, just nose-position-relative-to-eyes/chin ratios. These are
+// starting points and will likely need tuning against real camera footage
+// (lighting, camera angle, and face shape all shift the "looking straight"
+// baseline).
+const YAW_RATIO_THRESHOLD = 0.13; // horizontal nose offset from eye midpoint, as a fraction of face width
+const PITCH_UP_RATIO_THRESHOLD = 1.15; // (eye-to-nose distance) / (nose-to-chin distance) — high means tilted back/up
 
 const AUDIO_CHECK_INTERVAL_MS = 500;
 const LOUD_AUDIO_LEVEL_THRESHOLD = 0.35; // 0-1 RMS scale, same scale as AudioLevelMeter
@@ -213,15 +226,18 @@ export function TestRunner({
     };
   }, [stream, submitted, reportViolation]);
 
-  // Load the face detection model once, in the background. Detection stays
-  // disabled (other proctoring signals still work) if this fails — e.g. no
-  // WebGL support in the browser.
+  // Load the face detection + landmark models once, in the background.
+  // Detection stays disabled (other proctoring signals still work) if this
+  // fails — e.g. no WebGL support in the browser.
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
         const faceapi = await import("@vladmandic/face-api");
-        await faceapi.nets.tinyFaceDetector.loadFromUri("/models");
+        await Promise.all([
+          faceapi.nets.tinyFaceDetector.loadFromUri("/models"),
+          faceapi.nets.faceLandmark68TinyNet.loadFromUri("/models"),
+        ]);
         if (!cancelled) {
           faceApiRef.current = faceapi;
           setFaceModelsLoaded(true);
@@ -235,7 +251,7 @@ export function TestRunner({
     };
   }, []);
 
-  // Face absence / multiple-faces detection, sampling the live camera feed.
+  // Face absence / multiple-faces / gaze detection, sampling the live camera feed.
   useEffect(() => {
     if (!faceModelsLoaded || !stream || submitted) return;
     const faceapi = faceApiRef.current;
@@ -244,23 +260,29 @@ export function TestRunner({
 
     let noFaceStreak = 0;
     let multiFaceStreak = 0;
+    let lookingAwayStreak = 0;
     let cancelled = false;
 
     async function tick() {
       if (cancelled) return;
       if (video!.readyState >= 2) {
         try {
-          const detections = await faceapi!.detectAllFaces(video!, new faceapi!.TinyFaceDetectorOptions());
-          if (detections.length === 0) {
+          const results = await faceapi!
+            .detectAllFaces(video!, new faceapi!.TinyFaceDetectorOptions())
+            .withFaceLandmarks(true);
+
+          if (results.length === 0) {
             noFaceStreak += 1;
             multiFaceStreak = 0;
+            lookingAwayStreak = 0;
             if (noFaceStreak >= NO_FACE_STREAK_TO_FLAG) {
               noFaceStreak = 0;
               reportViolation("face_not_detected");
             }
-          } else if (detections.length > 1) {
+          } else if (results.length > 1) {
             multiFaceStreak += 1;
             noFaceStreak = 0;
+            lookingAwayStreak = 0;
             if (multiFaceStreak >= MULTI_FACE_STREAK_TO_FLAG) {
               multiFaceStreak = 0;
               reportViolation("multiple_faces");
@@ -268,6 +290,43 @@ export function TestRunner({
           } else {
             noFaceStreak = 0;
             multiFaceStreak = 0;
+
+            const { detection, landmarks } = results[0];
+            const box = detection.box;
+            const leftEye = landmarks.getLeftEye();
+            const rightEye = landmarks.getRightEye();
+            const nose = landmarks.getNose();
+            const jaw = landmarks.getJawOutline();
+
+            const avg = (points: { x: number; y: number }[]) => ({
+              x: points.reduce((sum, p) => sum + p.x, 0) / points.length,
+              y: points.reduce((sum, p) => sum + p.y, 0) / points.length,
+            });
+
+            const leftEyeCenter = avg(leftEye);
+            const rightEyeCenter = avg(rightEye);
+            const eyeMidX = (leftEyeCenter.x + rightEyeCenter.x) / 2;
+            const eyeMidY = (leftEyeCenter.y + rightEyeCenter.y) / 2;
+            const noseTip = nose[nose.length - 1];
+            const chin = jaw[8];
+
+            const yawRatio = (noseTip.x - eyeMidX) / box.width;
+            const eyeToNose = noseTip.y - eyeMidY;
+            const noseToChin = chin.y - noseTip.y;
+            const pitchRatio = noseToChin > 0 ? eyeToNose / noseToChin : 0;
+
+            const lookingAway =
+              Math.abs(yawRatio) > YAW_RATIO_THRESHOLD || pitchRatio > PITCH_UP_RATIO_THRESHOLD;
+
+            if (lookingAway) {
+              lookingAwayStreak += 1;
+              if (lookingAwayStreak >= LOOKING_AWAY_STREAK_TO_FLAG) {
+                lookingAwayStreak = 0;
+                reportViolation("looking_away");
+              }
+            } else {
+              lookingAwayStreak = 0;
+            }
           }
         } catch {
           // ignore a single failed detection tick
@@ -343,8 +402,8 @@ export function TestRunner({
 
   if (submitted) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-50 p-8">
-        <div className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-8 text-center shadow-sm">
+      <div className="flex min-h-screen items-center justify-center bg-slate-50 p-4 sm:p-8">
+        <div className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-6 text-center shadow-sm sm:p-8">
           <h1 className="text-xl font-semibold text-slate-900">
             {autoSubmittedReason ? "Test auto-submitted" : "Test submitted"}
           </h1>
@@ -373,34 +432,34 @@ export function TestRunner({
         </div>
       )}
 
-      <div className="flex items-center justify-between border-b border-slate-200 bg-white px-6 py-3">
-        <div>
-          <h1 className="text-sm font-semibold text-slate-900">{test.title}</h1>
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 bg-white px-4 py-3 md:px-6">
+        <div className="min-w-0">
+          <h1 className="truncate text-sm font-semibold text-slate-900">{test.title}</h1>
           <p className="text-xs text-slate-500">
             {answered}/{questions.length} answered · {violationCount}/{test.max_violations} violations
           </p>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex shrink-0 items-center gap-2 sm:gap-4">
           <CameraPreview
             stream={stream}
             videoRef={videoRef}
-            className="h-14 w-20 rounded-md border border-slate-200 bg-slate-900 object-cover"
+            className="h-10 w-14 rounded-md border border-slate-200 bg-slate-900 object-cover sm:h-14 sm:w-20"
           />
-          <span className="font-mono text-lg tabular-nums text-slate-900">{formatTime(remainingSeconds)}</span>
+          <span className="font-mono text-base tabular-nums text-slate-900 sm:text-lg">{formatTime(remainingSeconds)}</span>
           <button
             onClick={() => {
               if (window.confirm("Submit the test now? You cannot change answers after submitting.")) {
                 finishTest("manual");
               }
             }}
-            className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+            className="rounded-md bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700 sm:px-4 sm:py-2 sm:text-sm"
           >
             Submit test
           </button>
         </div>
       </div>
 
-      <div className="mx-auto flex max-w-3xl flex-col gap-6 p-6">
+      <div className="mx-auto flex max-w-3xl flex-col gap-4 p-4 sm:gap-6 sm:p-6">
         <div className="flex flex-wrap gap-2">
           {questions.map((q, index) => {
             const state = answers[q.id];
@@ -414,7 +473,7 @@ export function TestRunner({
               <button
                 key={q.id}
                 onClick={() => goToQuestion(index)}
-                className={`h-8 w-8 rounded-md text-xs font-medium ${color} ${
+                className={`h-9 w-9 shrink-0 rounded-md text-xs font-medium ${color} ${
                   isCurrent ? "ring-2 ring-blue-500" : ""
                 }`}
               >
@@ -425,7 +484,7 @@ export function TestRunner({
         </div>
 
         {question && (
-          <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
             <div className="flex items-center justify-between">
               <span className="text-xs text-slate-500">
                 Question {currentIndex + 1} of {questions.length}
@@ -458,7 +517,7 @@ export function TestRunner({
               })}
             </div>
 
-            <div className="mt-4 flex items-center justify-between">
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
               <label className="flex items-center gap-2 text-xs text-slate-500">
                 <input
                   type="checkbox"

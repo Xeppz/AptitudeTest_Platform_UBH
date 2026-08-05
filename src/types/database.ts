@@ -10,7 +10,8 @@ export type ViolationType =
   | "mic_off"
   | "face_not_detected"
   | "multiple_faces"
-  | "loud_audio";
+  | "loud_audio"
+  | "looking_away";
 
 export interface Profile {
   id: string;
