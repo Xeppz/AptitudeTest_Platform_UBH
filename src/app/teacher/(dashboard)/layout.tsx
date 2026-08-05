@@ -2,7 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { LogOut } from "lucide-react";
 import { getAuthedProfile, getAuthedUser } from "@/lib/supabase/auth";
-import { signOut } from "@/app/(auth)/actions";
+import { SignOutForm } from "@/components/SignOutForm";
 import { SidebarNav } from "./SidebarNav";
 
 export default async function TeacherDashboardLayout({
@@ -25,15 +25,12 @@ export default async function TeacherDashboardLayout({
           </span>
           <span className="text-sm font-semibold text-slate-900">AptiTest</span>
         </Link>
-        <form action={signOut}>
-          <button
-            type="submit"
-            aria-label="Log out"
-            className="flex h-8 w-8 items-center justify-center rounded-md text-slate-500 hover:bg-slate-100"
-          >
-            <LogOut size={18} />
-          </button>
-        </form>
+        <SignOutForm
+          ariaLabel="Log out"
+          className="flex h-8 w-8 items-center justify-center rounded-md text-slate-500 hover:bg-slate-100"
+        >
+          <LogOut size={18} />
+        </SignOutForm>
       </header>
 
       <aside className="hidden w-56 flex-col border-r border-slate-200 bg-white px-4 py-5 md:flex">
@@ -50,14 +47,9 @@ export default async function TeacherDashboardLayout({
           <p className="truncate px-3 text-xs text-slate-400">
             {profile?.full_name} · {profile?.role}
           </p>
-          <form action={signOut}>
-            <button
-              type="submit"
-              className="mt-1 flex w-full items-center rounded-md px-3 py-2 text-left text-sm text-slate-500 hover:bg-slate-100"
-            >
-              Log out
-            </button>
-          </form>
+          <SignOutForm className="mt-1 flex w-full items-center rounded-md px-3 py-2 text-left text-sm text-slate-500 hover:bg-slate-100">
+            Log out
+          </SignOutForm>
         </div>
       </aside>
 
