@@ -140,6 +140,24 @@ export function TestRunner({
     }
   }, [session.id, currentIndex, flushTimeForQuestion]);
 
+  const captureSnapshot = useCallback((): string | undefined => {
+    const video = videoRef.current;
+    if (!video || video.readyState < 2 || video.videoWidth === 0) return undefined;
+    const maxWidth = 320;
+    const scale = Math.min(1, maxWidth / video.videoWidth);
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.round(video.videoWidth * scale);
+    canvas.height = Math.round(video.videoHeight * scale);
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return undefined;
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    try {
+      return canvas.toDataURL("image/jpeg", 0.6);
+    } catch {
+      return undefined;
+    }
+  }, []);
+
   const reportViolation = useCallback(
     async (type: ViolationType) => {
       if (submittedRef.current) return;
@@ -148,7 +166,8 @@ export function TestRunner({
       lastFlagRef.current = now;
 
       try {
-        const result = await logViolation(session.id, type);
+        const snapshot = captureSnapshot();
+        const result = await logViolation(session.id, type, snapshot);
         setViolationCount(result.violationCount);
         if (result.autoSubmitted) {
           await finishTest("violations", "Maximum violations reached.");
@@ -162,7 +181,7 @@ export function TestRunner({
         // best-effort; a network hiccup shouldn't crash the test UI
       }
     },
-    [session.id, finishTest],
+    [session.id, finishTest, captureSnapshot],
   );
 
   // Countdown timer.

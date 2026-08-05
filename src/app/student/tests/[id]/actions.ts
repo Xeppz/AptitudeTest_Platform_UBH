@@ -91,7 +91,7 @@ export async function addTimeSpent(sessionId: string, questionId: string, second
  * their own flag trail from devtools. Ownership is verified with the
  * caller's own (RLS-scoped) session first.
  */
-export async function logViolation(sessionId: string, violationType: ViolationType) {
+export async function logViolation(sessionId: string, violationType: ViolationType, imageDataUrl?: string) {
   const supabase = await createClient();
   const {
     data: { user },
@@ -126,7 +126,26 @@ export async function logViolation(sessionId: string, violationType: ViolationTy
   const newCount = session.violation_count + 1;
   const autoSubmit = newCount >= maxViolations;
 
-  await admin.from("proctoring_logs").insert({ session_id: sessionId, event_type: violationType });
+  // Best-effort: a failed/missing snapshot should never block logging the
+  // violation itself (e.g. camera was off, or the upload hiccuped).
+  let imagePath: string | null = null;
+  if (imageDataUrl?.startsWith("data:image/")) {
+    try {
+      const base64 = imageDataUrl.slice(imageDataUrl.indexOf(",") + 1);
+      const buffer = Buffer.from(base64, "base64");
+      const path = `${sessionId}/${crypto.randomUUID()}.jpg`;
+      const { error: uploadError } = await admin.storage
+        .from("violation-snapshots")
+        .upload(path, buffer, { contentType: "image/jpeg" });
+      if (!uploadError) imagePath = path;
+    } catch {
+      // ignore — proceed without a photo
+    }
+  }
+
+  await admin
+    .from("proctoring_logs")
+    .insert({ session_id: sessionId, event_type: violationType, image_path: imagePath });
   await admin
     .from("violations")
     .insert({ session_id: sessionId, violation_type: violationType, flag_count_at_time: newCount });

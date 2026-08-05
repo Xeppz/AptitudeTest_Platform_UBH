@@ -89,6 +89,7 @@ export interface ProctoringLog {
   session_id: string;
   event_type: ViolationType;
   event_data: Record<string, unknown> | null;
+  image_path: string | null;
   created_at: string;
 }
 

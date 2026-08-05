@@ -1,10 +1,23 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { getAuthedUser } from "@/lib/supabase/auth";
 import { computeScore } from "@/lib/scoring";
 import { QuestionReviewCard } from "@/components/QuestionReviewCard";
 import type { Answer, Profile, ProctoringLog, Question, Test, TestSession } from "@/types/database";
+
+const VIOLATION_LABELS: Record<string, string> = {
+  tab_switch: "Switched to another tab or app",
+  window_blur: "Left/clicked away from the test window",
+  fullscreen_exit: "Exited fullscreen",
+  camera_off: "Camera was turned off",
+  mic_off: "Microphone was turned off",
+  face_not_detected: "No face visible in frame",
+  multiple_faces: "More than one face visible in frame",
+  loud_audio: "Sustained loud talking or noise",
+  looking_away: "Looked away from the screen (sideways or up)",
+};
 
 export default async function StudentResultDetailPage({
   params,
@@ -43,6 +56,20 @@ export default async function StudentResultDetailPage({
   const { data: profileData } = await supabase.from("profiles").select("*").eq("id", session.student_id).single();
   const profile = profileData as Profile | null;
 
+  // Snapshots live in a private bucket with no client-facing storage
+  // policies (see 0010_add_violation_snapshots.sql) — signed URLs are
+  // generated here via the service-role client.
+  const admin = createAdminClient();
+  const logsWithImages = await Promise.all(
+    logs.map(async (log) => {
+      if (!log.image_path) return { ...log, imageUrl: null as string | null };
+      const { data } = await admin.storage
+        .from("violation-snapshots")
+        .createSignedUrl(log.image_path, 3600);
+      return { ...log, imageUrl: data?.signedUrl ?? null };
+    }),
+  );
+
   return (
     <div className="max-w-3xl">
       <Link href={`/teacher/tests/${id}/results`} className="text-sm text-slate-500 hover:text-slate-700">
@@ -71,13 +98,30 @@ export default async function StudentResultDetailPage({
         <p className="text-sm font-medium text-slate-700">
           Flag history ({session.violation_count} violation{session.violation_count === 1 ? "" : "s"})
         </p>
-        <div className="mt-2 flex flex-col gap-1">
-          {logs.map((log) => (
-            <p key={log.id} className="text-xs text-slate-500">
-              {new Date(log.created_at).toLocaleTimeString()} — {log.event_type.replace(/_/g, " ")}
-            </p>
+        <div className="mt-3 flex flex-col gap-3">
+          {logsWithImages.map((log) => (
+            <div key={log.id} className="flex items-start gap-3 rounded-md border border-slate-100 p-2">
+              {log.imageUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element -- private signed URL, expires hourly; not a candidate for next/image optimization
+                <img
+                  src={log.imageUrl}
+                  alt=""
+                  className="h-16 w-16 shrink-0 rounded object-cover ring-1 ring-slate-200"
+                />
+              ) : (
+                <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded bg-slate-100 text-[10px] text-slate-400 ring-1 ring-slate-200">
+                  No photo
+                </div>
+              )}
+              <div className="min-w-0">
+                <p className="text-sm text-slate-800">
+                  {VIOLATION_LABELS[log.event_type] ?? log.event_type.replace(/_/g, " ")}
+                </p>
+                <p className="text-xs text-slate-500">{new Date(log.created_at).toLocaleString()}</p>
+              </div>
+            </div>
           ))}
-          {logs.length === 0 && <p className="text-xs text-slate-400">No proctoring events logged.</p>}
+          {logsWithImages.length === 0 && <p className="text-xs text-slate-400">No proctoring events logged.</p>}
         </div>
       </div>
 
