@@ -44,8 +44,8 @@ export function VerifyClient({
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-50 p-8">
-      <div className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-8 shadow-sm">
+    <div className="flex min-h-screen items-center justify-center bg-slate-50 p-4 sm:p-8">
+      <div className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-5 shadow-sm sm:p-8">
         <h1 className="text-xl font-semibold text-slate-900">{title}</h1>
         <p className="mt-1 text-sm text-slate-500">
           {durationMinutes} minutes · camera and microphone verification required
@@ -78,6 +78,7 @@ export function VerifyClient({
           <li>Switching tabs or windows is logged as a violation.</li>
           <li>Turning off your camera or microphone mid-test is logged as a violation.</li>
           <li>Stepping out of frame or having no face visible is logged as a violation.</li>
+          <li>Looking away from the screen — sideways or up — is logged as a violation.</li>
           <li>Someone else appearing in frame is logged as a violation.</li>
           <li>Sustained loud talking or noise is logged as a violation.</li>
           <li>Too many violations will auto-submit your test.</li>

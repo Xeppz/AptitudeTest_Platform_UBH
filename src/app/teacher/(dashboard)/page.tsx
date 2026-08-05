@@ -35,22 +35,22 @@ export default async function TeacherDashboard() {
       </p>
       <p className="mt-1 text-sm text-slate-500">Manage your tests and review submissions.</p>
 
-      <div className="mt-6 grid max-w-md grid-cols-3 gap-3">
-        <div className="rounded-lg bg-white p-4 shadow-sm ring-1 ring-slate-200">
+      <div className="mt-6 grid max-w-md grid-cols-3 gap-2 sm:gap-3">
+        <div className="rounded-lg bg-white p-3 shadow-sm ring-1 ring-slate-200 sm:p-4">
           <p className="text-xs text-slate-500">Total tests</p>
           <p className="mt-1 text-2xl font-semibold text-slate-900">{tests.length}</p>
         </div>
-        <div className="rounded-lg bg-white p-4 shadow-sm ring-1 ring-slate-200">
+        <div className="rounded-lg bg-white p-3 shadow-sm ring-1 ring-slate-200 sm:p-4">
           <p className="text-xs text-slate-500">Published</p>
           <p className="mt-1 text-2xl font-semibold text-blue-600">{publishedCount}</p>
         </div>
-        <div className="rounded-lg bg-white p-4 shadow-sm ring-1 ring-slate-200">
+        <div className="rounded-lg bg-white p-3 shadow-sm ring-1 ring-slate-200 sm:p-4">
           <p className="text-xs text-slate-500">Drafts</p>
           <p className="mt-1 text-2xl font-semibold text-slate-900">{draftCount}</p>
         </div>
       </div>
 
-      <div className="mt-8 flex items-center justify-between">
+      <div className="mt-8 flex flex-wrap items-center justify-between gap-2">
         <h2 className="text-sm font-medium text-slate-700">Your tests</h2>
         <Link
           href="/teacher/tests/new"
@@ -64,7 +64,7 @@ export default async function TeacherDashboard() {
         {tests.map((test) => (
           <div
             key={test.id}
-            className="flex items-center justify-between rounded-lg border border-slate-200 bg-white px-4 py-3 hover:border-slate-300"
+            className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-slate-200 bg-white px-4 py-3 hover:border-slate-300"
           >
             <Link href={`/teacher/tests/${test.id}/review`} className="text-sm font-medium text-slate-900">
               {test.title}
