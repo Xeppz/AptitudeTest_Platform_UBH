@@ -57,7 +57,7 @@ export function TestRunner({
   questions: QuestionForStudent[];
   initialAnswers: Answer[];
 }) {
-  const { stream } = useMediaStream();
+  const { stream, error: mediaError, requesting: mediaRequesting, requestAccess } = useMediaStream();
   const videoRef = useRef<HTMLVideoElement>(null);
   const faceApiRef = useRef<typeof FaceApi | null>(null);
   const [faceModelsLoaded, setFaceModelsLoaded] = useState(false);
@@ -435,6 +435,37 @@ export function TestRunner({
           >
             Back to dashboard
           </a>
+        </div>
+      </div>
+    );
+  }
+
+  if (!stream) {
+    // The camera stream doesn't survive the navigation from the verify page
+    // (a fresh grant here is also required for the "resume an in-progress
+    // test" path, which lands here directly without ever visiting verify),
+    // so proctoring can't start until this is explicitly granted here too.
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-slate-50 p-4 sm:p-8">
+        <div className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-6 text-center shadow-sm sm:p-8">
+          <h1 className="text-xl font-semibold text-slate-900">Camera & microphone required</h1>
+          <p className="mt-2 text-sm text-slate-500">
+            Proctoring needs access to your camera and microphone for the whole test. This is
+            required again here even if you already granted it on the previous screen.
+          </p>
+          <button
+            onClick={requestAccess}
+            disabled={mediaRequesting}
+            className="mt-6 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+          >
+            {mediaRequesting ? "Requesting…" : mediaError ? "Try again" : "Enable camera & microphone"}
+          </button>
+          {mediaError && (
+            <p className="mt-4 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+              {mediaError} On a phone, make sure you opened this link directly in Chrome or Safari — not
+              inside an app like Instagram, WhatsApp, or LinkedIn.
+            </p>
+          )}
         </div>
       </div>
     );
