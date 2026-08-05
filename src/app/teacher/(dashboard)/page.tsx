@@ -34,6 +34,15 @@ export default async function TeacherDashboard() {
       </p>
       <p className="mt-1 text-sm text-slate-500">Manage your tests and review submissions.</p>
 
+      {profile?.role === "admin" && (
+        <Link
+          href="/teacher/students"
+          className="mt-3 inline-flex items-center text-sm font-medium text-blue-600 hover:underline md:hidden"
+        >
+          Manage students →
+        </Link>
+      )}
+
       <div className="mt-6 grid max-w-md grid-cols-3 gap-2 sm:gap-3">
         <div className="rounded-lg bg-white p-3 shadow-sm ring-1 ring-slate-200 sm:p-4">
           <p className="text-xs text-slate-500">Total tests</p>

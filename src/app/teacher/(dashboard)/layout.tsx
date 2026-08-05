@@ -44,7 +44,7 @@ export default async function TeacherDashboardLayout({
           <span className="text-sm font-semibold text-slate-900">AptiTest</span>
         </Link>
 
-        <SidebarNav />
+        <SidebarNav isAdmin={profile?.role === "admin"} />
 
         <div className="mt-auto">
           <p className="truncate px-3 text-xs text-slate-400">

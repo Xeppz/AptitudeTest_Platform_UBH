@@ -3,14 +3,16 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-const LINKS = [{ href: "/teacher", label: "Dashboard" }];
+const BASE_LINKS = [{ href: "/teacher", label: "Dashboard" }];
+const ADMIN_LINKS = [{ href: "/teacher/students", label: "Students" }];
 
-export function SidebarNav() {
+export function SidebarNav({ isAdmin = false }: { isAdmin?: boolean }) {
   const pathname = usePathname();
+  const links = isAdmin ? [...BASE_LINKS, ...ADMIN_LINKS] : BASE_LINKS;
 
   return (
     <nav className="flex flex-col gap-1 text-sm">
-      {LINKS.map((link) => {
+      {links.map((link) => {
         const active = pathname === link.href;
         return (
           <Link
