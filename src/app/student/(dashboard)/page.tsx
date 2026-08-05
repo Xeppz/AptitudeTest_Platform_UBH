@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import type { Profile, SessionStatus, Test, TestSession } from "@/types/database";
+import { getAuthedProfile, getAuthedUser } from "@/lib/supabase/auth";
+import type { SessionStatus, Test, TestSession } from "@/types/database";
 
 const STATUS_LABEL: Record<SessionStatus, string> = {
   not_started: "Start test",
@@ -11,26 +12,20 @@ const STATUS_LABEL: Record<SessionStatus, string> = {
 };
 
 export default async function StudentDashboard() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getAuthedUser();
   if (!user) redirect("/login");
 
-  const { data } = await supabase.from("profiles").select("full_name").eq("id", user.id).single();
-  const profile = data as Pick<Profile, "full_name"> | null;
-
-  const { data: testsData } = await supabase
-    .from("tests")
-    .select("*")
-    .eq("status", "published")
-    .order("created_at", { ascending: false });
+  const supabase = await createClient();
+  const [profile, { data: testsData }, { data: sessionsData }] = await Promise.all([
+    getAuthedProfile(user.id),
+    supabase
+      .from("tests")
+      .select("*")
+      .eq("status", "published")
+      .order("created_at", { ascending: false }),
+    supabase.from("test_sessions").select("*").eq("student_id", user.id),
+  ]);
   const tests = (testsData as Test[] | null) ?? [];
-
-  const { data: sessionsData } = await supabase
-    .from("test_sessions")
-    .select("*")
-    .eq("student_id", user.id);
   const sessions = (sessionsData as TestSession[] | null) ?? [];
   const sessionByTestId = new Map(sessions.map((s) => [s.test_id, s]));
 

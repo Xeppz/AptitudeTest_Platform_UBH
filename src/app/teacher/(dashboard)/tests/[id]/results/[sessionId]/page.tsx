@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { getAuthedUser } from "@/lib/supabase/auth";
 import { computeScore } from "@/lib/scoring";
 import { QuestionReviewCard } from "@/components/QuestionReviewCard";
 import type { Answer, Profile, ProctoringLog, Question, Test, TestSession } from "@/types/database";
@@ -11,46 +12,36 @@ export default async function StudentResultDetailPage({
   params: Promise<{ id: string; sessionId: string }>;
 }) {
   const { id, sessionId } = await params;
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getAuthedUser();
   if (!user) redirect("/login");
 
-  const { data: testData } = await supabase.from("tests").select("*").eq("id", id).single();
+  const supabase = await createClient();
+  const [
+    { data: testData },
+    { data: sessionData },
+    { data: questionsData },
+    { data: answersData },
+    { data: logsData },
+  ] = await Promise.all([
+    supabase.from("tests").select("*").eq("id", id).single(),
+    supabase.from("test_sessions").select("*").eq("id", sessionId).eq("test_id", id).single(),
+    supabase.from("questions").select("*").eq("test_id", id).order("order_index", { ascending: true }),
+    supabase.from("answers").select("*").eq("session_id", sessionId),
+    supabase.from("proctoring_logs").select("*").eq("session_id", sessionId).order("created_at", { ascending: true }),
+  ]);
   const test = testData as Test | null;
   if (!test || test.teacher_id !== user.id) notFound();
 
-  const { data: sessionData } = await supabase
-    .from("test_sessions")
-    .select("*")
-    .eq("id", sessionId)
-    .eq("test_id", id)
-    .single();
   const session = sessionData as TestSession | null;
   if (!session || (session.status !== "submitted" && session.status !== "auto_submitted")) notFound();
 
+  const questions = (questionsData as Question[] | null) ?? [];
+  const answers = (answersData as Answer[] | null) ?? [];
+  const score = computeScore(questions, answers, test);
+  const logs = (logsData as ProctoringLog[] | null) ?? [];
+
   const { data: profileData } = await supabase.from("profiles").select("*").eq("id", session.student_id).single();
   const profile = profileData as Profile | null;
-
-  const { data: questionsData } = await supabase
-    .from("questions")
-    .select("*")
-    .eq("test_id", id)
-    .order("order_index", { ascending: true });
-  const questions = (questionsData as Question[] | null) ?? [];
-
-  const { data: answersData } = await supabase.from("answers").select("*").eq("session_id", sessionId);
-  const answers = (answersData as Answer[] | null) ?? [];
-
-  const score = computeScore(questions, answers, test);
-
-  const { data: logsData } = await supabase
-    .from("proctoring_logs")
-    .select("*")
-    .eq("session_id", sessionId)
-    .order("created_at", { ascending: true });
-  const logs = (logsData as ProctoringLog[] | null) ?? [];
 
   return (
     <div className="max-w-3xl">

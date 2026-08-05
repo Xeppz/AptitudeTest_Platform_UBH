@@ -1,6 +1,7 @@
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { getAuthedUser } from "@/lib/supabase/auth";
 import type { Question, Test } from "@/types/database";
 import { QuestionEditor } from "./QuestionEditor";
 import { PublishButton } from "./PublishButton";
@@ -11,21 +12,16 @@ export default async function ReviewTestPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getAuthedUser();
   if (!user) redirect("/login");
 
-  const { data: testData } = await supabase.from("tests").select("*").eq("id", id).single();
+  const supabase = await createClient();
+  const [{ data: testData }, { data: questionsData }] = await Promise.all([
+    supabase.from("tests").select("*").eq("id", id).single(),
+    supabase.from("questions").select("*").eq("test_id", id).order("order_index", { ascending: true }),
+  ]);
   const test = testData as Test | null;
   if (!test) notFound();
-
-  const { data: questionsData } = await supabase
-    .from("questions")
-    .select("*")
-    .eq("test_id", id)
-    .order("order_index", { ascending: true });
   const questions = (questionsData as Question[] | null) ?? [];
 
   return (

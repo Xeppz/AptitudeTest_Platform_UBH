@@ -1,9 +1,8 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { LogOut } from "lucide-react";
-import { createClient } from "@/lib/supabase/server";
+import { getAuthedProfile, getAuthedUser } from "@/lib/supabase/auth";
 import { signOut } from "@/app/(auth)/actions";
-import type { Profile } from "@/types/database";
 import { SidebarNav } from "./SidebarNav";
 
 export default async function TeacherDashboardLayout({
@@ -11,19 +10,10 @@ export default async function TeacherDashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getAuthedUser();
   if (!user) redirect("/login");
 
-  const { data } = await supabase
-    .from("profiles")
-    .select("full_name, role")
-    .eq("id", user.id)
-    .single();
-  // See src/app/(auth)/actions.ts for why this cast is needed until real generated types land.
-  const profile = data as Pick<Profile, "full_name" | "role"> | null;
+  const profile = await getAuthedProfile(user.id);
   if (profile?.role === "student") redirect("/student");
 
   return (

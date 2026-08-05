@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import type { Profile, Test } from "@/types/database";
+import { getAuthedProfile, getAuthedUser } from "@/lib/supabase/auth";
+import type { Test } from "@/types/database";
 
 const STATUS_STYLE: Record<Test["status"], string> = {
   draft: "bg-slate-100 text-slate-600",
@@ -10,20 +11,18 @@ const STATUS_STYLE: Record<Test["status"], string> = {
 };
 
 export default async function TeacherDashboard() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getAuthedUser();
   if (!user) redirect("/login");
 
-  const { data } = await supabase.from("profiles").select("full_name").eq("id", user.id).single();
-  const profile = data as Pick<Profile, "full_name"> | null;
-
-  const { data: testsData } = await supabase
-    .from("tests")
-    .select("*")
-    .eq("teacher_id", user.id)
-    .order("created_at", { ascending: false });
+  const supabase = await createClient();
+  const [profile, { data: testsData }] = await Promise.all([
+    getAuthedProfile(user.id),
+    supabase
+      .from("tests")
+      .select("*")
+      .eq("teacher_id", user.id)
+      .order("created_at", { ascending: false }),
+  ]);
   const tests = (testsData as Test[] | null) ?? [];
   const publishedCount = tests.filter((t) => t.status === "published").length;
   const draftCount = tests.filter((t) => t.status === "draft").length;

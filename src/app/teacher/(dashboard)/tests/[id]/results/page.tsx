@@ -1,48 +1,43 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { getAuthedUser } from "@/lib/supabase/auth";
 import { computeScore } from "@/lib/scoring";
 import type { Answer, Profile, Question, Test, TestSession } from "@/types/database";
 
 export default async function TestResultsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getAuthedUser();
   if (!user) redirect("/login");
 
-  const { data: testData } = await supabase.from("tests").select("*").eq("id", id).single();
+  const supabase = await createClient();
+  const [{ data: testData }, { data: sessionsData }, { data: questionsData }] = await Promise.all([
+    supabase.from("tests").select("*").eq("id", id).single(),
+    supabase
+      .from("test_sessions")
+      .select("*")
+      .eq("test_id", id)
+      .in("status", ["submitted", "auto_submitted"])
+      .order("submitted_at", { ascending: false }),
+    supabase.from("questions").select("*").eq("test_id", id).order("order_index", { ascending: true }),
+  ]);
   const test = testData as Test | null;
   if (!test || test.teacher_id !== user.id) notFound();
-
-  const { data: sessionsData } = await supabase
-    .from("test_sessions")
-    .select("*")
-    .eq("test_id", id)
-    .in("status", ["submitted", "auto_submitted"])
-    .order("submitted_at", { ascending: false });
   const sessions = (sessionsData as TestSession[] | null) ?? [];
-
-  const studentIds = [...new Set(sessions.map((s) => s.student_id))];
-  const { data: profilesData } =
-    studentIds.length > 0
-      ? await supabase.from("profiles").select("*").in("id", studentIds)
-      : { data: [] as Profile[] };
-  const profileById = new Map(((profilesData as Profile[] | null) ?? []).map((p) => [p.id, p]));
-
-  const { data: questionsData } = await supabase
-    .from("questions")
-    .select("*")
-    .eq("test_id", id)
-    .order("order_index", { ascending: true });
   const questions = (questionsData as Question[] | null) ?? [];
 
+  const studentIds = [...new Set(sessions.map((s) => s.student_id))];
   const sessionIds = sessions.map((s) => s.id);
-  const { data: answersData } =
+  const [{ data: profilesData }, { data: answersData }] = await Promise.all([
+    studentIds.length > 0
+      ? supabase.from("profiles").select("*").in("id", studentIds)
+      : Promise.resolve({ data: [] as Profile[] }),
     sessionIds.length > 0
-      ? await supabase.from("answers").select("*").in("session_id", sessionIds)
-      : { data: [] as Answer[] };
+      ? supabase.from("answers").select("*").in("session_id", sessionIds)
+      : Promise.resolve({ data: [] as Answer[] }),
+  ]);
+  const profileById = new Map(((profilesData as Profile[] | null) ?? []).map((p) => [p.id, p]));
+
   const answersBySessionId = new Map<string, Answer[]>();
   for (const a of (answersData as Answer[] | null) ?? []) {
     const list = answersBySessionId.get(a.session_id) ?? [];

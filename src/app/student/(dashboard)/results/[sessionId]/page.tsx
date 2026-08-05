@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getAuthedUser } from "@/lib/supabase/auth";
 import { computeScore } from "@/lib/scoring";
 import { QuestionReviewCard, formatSeconds } from "@/components/QuestionReviewCard";
 import type { Answer, Question, Test, TestSession } from "@/types/database";
@@ -12,37 +13,29 @@ export default async function ResultDetailPage({
   params: Promise<{ sessionId: string }>;
 }) {
   const { sessionId } = await params;
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getAuthedUser();
   if (!user) redirect("/login");
 
-  const { data: sessionData } = await supabase
-    .from("test_sessions")
-    .select("*")
-    .eq("id", sessionId)
-    .single();
+  const supabase = await createClient();
+  const [{ data: sessionData }, { data: answersData }] = await Promise.all([
+    supabase.from("test_sessions").select("*").eq("id", sessionId).single(),
+    supabase.from("answers").select("*").eq("session_id", sessionId),
+  ]);
   const session = sessionData as TestSession | null;
   if (!session || session.student_id !== user.id) notFound();
   if (session.status !== "submitted" && session.status !== "auto_submitted") notFound();
-
-  const { data: testData } = await supabase.from("tests").select("*").eq("id", session.test_id).single();
-  const test = testData as Test | null;
-  if (!test) notFound();
+  const answers = (answersData as Answer[] | null) ?? [];
 
   // Correct answers only ever get read here after confirming above that this
   // session is the caller's own and already completed.
   const admin = createAdminClient();
-  const { data: questionsData } = await admin
-    .from("questions")
-    .select("*")
-    .eq("test_id", session.test_id)
-    .order("order_index", { ascending: true });
+  const [{ data: testData }, { data: questionsData }] = await Promise.all([
+    supabase.from("tests").select("*").eq("id", session.test_id).single(),
+    admin.from("questions").select("*").eq("test_id", session.test_id).order("order_index", { ascending: true }),
+  ]);
+  const test = testData as Test | null;
+  if (!test) notFound();
   const questions = (questionsData as Question[] | null) ?? [];
-
-  const { data: answersData } = await supabase.from("answers").select("*").eq("session_id", sessionId);
-  const answers = (answersData as Answer[] | null) ?? [];
 
   const score = computeScore(questions, answers, test);
 

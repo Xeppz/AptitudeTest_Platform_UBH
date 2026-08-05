@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getAuthedUser } from "@/lib/supabase/auth";
 import { computeScore } from "@/lib/scoring";
 import type { Answer, Question, SessionStatus, Test, TestSession } from "@/types/database";
 
@@ -11,12 +12,10 @@ const STATUS_LABEL: Record<Extract<SessionStatus, "submitted" | "auto_submitted"
 };
 
 export default async function ResultsPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getAuthedUser();
   if (!user) redirect("/login");
 
+  const supabase = await createClient();
   const { data: sessionsData } = await supabase
     .from("test_sessions")
     .select("*")
@@ -28,18 +27,23 @@ export default async function ResultsPage() {
   const testIds = [...new Set(sessions.map((s) => s.test_id))];
   const sessionIds = sessions.map((s) => s.id);
 
-  const { data: testsData } =
-    testIds.length > 0
-      ? await supabase.from("tests").select("*").in("id", testIds)
-      : { data: [] as Test[] };
-  const testById = new Map(((testsData as Test[] | null) ?? []).map((t) => [t.id, t]));
-
   // Correct answers are never exposed to a client-side query (see the questions
   // RLS policy) — safe to read here with the admin client since we only ever
   // do this for sessions already confirmed submitted/auto_submitted above.
   const admin = createAdminClient();
-  const { data: questionsData } =
-    testIds.length > 0 ? await admin.from("questions").select("*").in("test_id", testIds) : { data: [] as Question[] };
+  const [{ data: testsData }, { data: questionsData }, { data: answersData }] = await Promise.all([
+    testIds.length > 0
+      ? supabase.from("tests").select("*").in("id", testIds)
+      : Promise.resolve({ data: [] as Test[] }),
+    testIds.length > 0
+      ? admin.from("questions").select("*").in("test_id", testIds)
+      : Promise.resolve({ data: [] as Question[] }),
+    sessionIds.length > 0
+      ? supabase.from("answers").select("*").in("session_id", sessionIds)
+      : Promise.resolve({ data: [] as Answer[] }),
+  ]);
+  const testById = new Map(((testsData as Test[] | null) ?? []).map((t) => [t.id, t]));
+
   const questionsByTestId = new Map<string, Question[]>();
   for (const q of (questionsData as Question[] | null) ?? []) {
     const list = questionsByTestId.get(q.test_id) ?? [];
@@ -47,10 +51,6 @@ export default async function ResultsPage() {
     questionsByTestId.set(q.test_id, list);
   }
 
-  const { data: answersData } =
-    sessionIds.length > 0
-      ? await supabase.from("answers").select("*").in("session_id", sessionIds)
-      : { data: [] as Answer[] };
   const answersBySessionId = new Map<string, Answer[]>();
   for (const a of (answersData as Answer[] | null) ?? []) {
     const list = answersBySessionId.get(a.session_id) ?? [];
