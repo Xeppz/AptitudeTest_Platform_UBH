@@ -64,6 +64,7 @@ export default async function TestResultsPage({ params }: { params: Promise<{ id
               <th className="px-4 py-2 font-medium">Violations</th>
               <th className="px-4 py-2 font-medium">Status</th>
               <th className="px-4 py-2 font-medium">Submitted</th>
+              <th className="px-4 py-2 font-medium"></th>
             </tr>
           </thead>
           <tbody>
@@ -74,12 +75,7 @@ export default async function TestResultsPage({ params }: { params: Promise<{ id
               return (
                 <tr key={session.id} className="border-b border-slate-100 last:border-0 hover:bg-slate-50">
                   <td className="px-4 py-2">
-                    <Link
-                      href={`/teacher/tests/${id}/results/${session.id}`}
-                      className="font-medium text-blue-600 hover:underline"
-                    >
-                      {profile?.full_name ?? "Unknown"}
-                    </Link>
+                    <p className="font-medium text-slate-900">{profile?.full_name ?? "Unknown"}</p>
                     <p className="text-xs text-slate-400">{profile?.email}</p>
                   </td>
                   <td className="px-4 py-2 font-medium text-slate-900">
@@ -100,12 +96,20 @@ export default async function TestResultsPage({ params }: { params: Promise<{ id
                   <td className="px-4 py-2 text-slate-500">
                     {session.submitted_at ? new Date(session.submitted_at).toLocaleString() : "—"}
                   </td>
+                  <td className="px-4 py-2 text-right">
+                    <Link
+                      href={`/teacher/tests/${id}/results/${session.id}`}
+                      className="rounded-md border border-blue-200 px-3 py-1.5 text-xs font-medium text-blue-600 hover:bg-blue-50"
+                    >
+                      Report
+                    </Link>
+                  </td>
                 </tr>
               );
             })}
             {sessions.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-4 py-6 text-center text-slate-500">
+                <td colSpan={6} className="px-4 py-6 text-center text-slate-500">
                   No submissions yet.
                 </td>
               </tr>

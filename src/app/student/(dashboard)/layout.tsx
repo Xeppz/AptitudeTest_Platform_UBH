@@ -29,7 +29,7 @@ export default async function StudentDashboardLayout({
         </Link>
         <SignOutForm
           ariaLabel="Log out"
-          className="flex h-8 w-8 items-center justify-center rounded-md text-slate-500 hover:bg-slate-100"
+          className="flex h-8 w-8 items-center justify-center rounded-md text-blue-600 transition-colors hover:bg-blue-50 hover:text-blue-700"
         >
           <LogOut size={18} />
         </SignOutForm>
@@ -47,7 +47,7 @@ export default async function StudentDashboardLayout({
 
         <div className="mt-auto">
           <p className="truncate px-3 text-xs text-slate-400">{profile?.full_name}</p>
-          <SignOutForm className="mt-1 flex w-full items-center rounded-md px-3 py-2 text-left text-sm text-slate-500 hover:bg-slate-100">
+          <SignOutForm className="mt-1 flex w-full items-center rounded-md px-3 py-2 text-left text-sm font-medium text-blue-600 transition-colors hover:bg-blue-50 hover:text-blue-700">
             Log out
           </SignOutForm>
         </div>

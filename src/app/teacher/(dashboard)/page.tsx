@@ -10,6 +10,12 @@ const STATUS_STYLE: Record<Test["status"], string> = {
   archived: "bg-slate-100 text-slate-500",
 };
 
+const STATUS_LABEL: Record<Test["status"], string> = {
+  draft: "Draft",
+  published: "Published",
+  archived: "Archived",
+};
+
 export default async function TeacherDashboard() {
   const user = await getAuthedUser();
   if (!user) redirect("/login");
@@ -87,7 +93,7 @@ export default async function TeacherDashboard() {
                 </Link>
               )}
               <span className={`rounded-md px-2.5 py-1 text-xs font-medium ${STATUS_STYLE[test.status]}`}>
-                {test.status}
+                {STATUS_LABEL[test.status]}
               </span>
             </div>
           </div>
