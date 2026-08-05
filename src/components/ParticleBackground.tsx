@@ -10,7 +10,7 @@ interface Particle {
   radius: number;
 }
 
-const PARTICLE_COUNT = 55;
+const PARTICLE_COUNT = 110;
 const POINTER_RADIUS = 140;
 const POINTER_FORCE = 0.035;
 const DRIFT_SPEED = 0.15;
@@ -106,7 +106,7 @@ export function ParticleBackground() {
 
         ctx!.beginPath();
         ctx!.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-        ctx!.fillStyle = "rgba(59, 130, 246, 0.45)"; // blue-500
+        ctx!.fillStyle = "rgba(37, 99, 235, 0.75)"; // blue-600, brighter
         ctx!.fill();
       }
 
@@ -118,7 +118,7 @@ export function ParticleBackground() {
       for (const p of particles) {
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-        ctx.fillStyle = "rgba(59, 130, 246, 0.45)";
+        ctx.fillStyle = "rgba(37, 99, 235, 0.75)";
         ctx.fill();
       }
     } else {
