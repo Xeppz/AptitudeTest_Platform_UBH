@@ -1,5 +1,5 @@
 export type UserRole = "admin" | "teacher" | "student";
-export type StudentYear = "second_year" | "third_year";
+export type StudentYear = "first_year" | "second_year" | "third_year";
 export type TestStatus = "draft" | "published" | "archived";
 export type SessionStatus = "not_started" | "in_progress" | "submitted" | "auto_submitted";
 export type OptionLetter = "A" | "B" | "C" | "D";

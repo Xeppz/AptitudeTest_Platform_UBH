@@ -2,7 +2,8 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import type { UserRole } from "@/types/database";
+import { STUDENT_YEARS } from "@/lib/studentYear";
+import type { StudentYear, UserRole } from "@/types/database";
 
 function dashboardPathForRole(role: UserRole) {
   return role === "student" ? "/student" : "/teacher";
@@ -12,10 +13,15 @@ export async function signUp(formData: FormData) {
   const email = String(formData.get("email") ?? "");
   const password = String(formData.get("password") ?? "");
   const fullName = String(formData.get("fullName") ?? "");
+  const yearRaw = String(formData.get("year") ?? "");
 
-  if (!email || !password || !fullName) {
+  if (!email || !password || !fullName || !yearRaw) {
     redirect(`/signup?error=${encodeURIComponent("All fields are required.")}`);
   }
+  if (!(STUDENT_YEARS as string[]).includes(yearRaw)) {
+    redirect(`/signup?error=${encodeURIComponent("Select a valid year.")}`);
+  }
+  const year = yearRaw as StudentYear;
 
   // Public self-signup can only ever create students — never trust a role value
   // from the client here. Teacher/admin accounts are promoted separately by
@@ -25,7 +31,7 @@ export async function signUp(formData: FormData) {
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
-    options: { data: { full_name: fullName, role: "student" } },
+    options: { data: { full_name: fullName, role: "student", year } },
   });
 
   if (error) {

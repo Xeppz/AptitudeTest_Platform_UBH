@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { signUp } from "../actions";
+import { STUDENT_YEAR_LABELS, STUDENT_YEARS } from "@/lib/studentYear";
 
 export default async function SignupPage({
   searchParams,
@@ -32,6 +33,27 @@ export default async function SignupPage({
               required
               className="mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
             />
+          </div>
+          <div>
+            <label htmlFor="year" className="block text-sm text-slate-700">
+              Year
+            </label>
+            <select
+              id="year"
+              name="year"
+              required
+              defaultValue=""
+              className="mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+            >
+              <option value="" disabled>
+                Select your year
+              </option>
+              {STUDENT_YEARS.map((y) => (
+                <option key={y} value={y}>
+                  {STUDENT_YEAR_LABELS[y]}
+                </option>
+              ))}
+            </select>
           </div>
           <div>
             <label htmlFor="email" className="block text-sm text-slate-700">
