@@ -12,7 +12,10 @@ export async function GET(request: NextRequest) {
     const supabase = await createClient();
     const { error } = await supabase.auth.verifyOtp({ type, token_hash });
     if (!error) {
-      redirect("/login?message=Email confirmed. Log in to continue.");
+      // verifyOtp() establishes a real session for "recovery" — send them
+      // straight to set a new password rather than back to a login form
+      // they're now already authenticated past.
+      redirect(type === "recovery" ? "/change-password" : "/login?message=Email confirmed. Log in to continue.");
     }
   }
 

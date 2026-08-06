@@ -60,7 +60,13 @@ export default async function LoginPage({
           </button>
         </form>
 
-        <p className="mt-6 text-center text-sm text-slate-500">
+        <p className="mt-4 text-center text-sm">
+          <Link href="/forgot-password" className="text-blue-600 underline">
+            Forgot password?
+          </Link>
+        </p>
+
+        <p className="mt-2 text-center text-sm text-slate-500">
           No account?{" "}
           <Link href="/signup" className="text-blue-600 underline">
             Sign up
