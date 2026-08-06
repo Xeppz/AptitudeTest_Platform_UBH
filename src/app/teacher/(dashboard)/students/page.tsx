@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect, notFound } from "next/navigation";
 import { getAuthedProfile, getAuthedUser } from "@/lib/supabase/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -92,7 +93,15 @@ export default async function StudentsPage({
             {yearFilter ? ` · ${STUDENT_YEAR_LABELS[yearFilter]}` : ""}.
           </p>
         </div>
-        <YearFilter />
+        <div className="flex items-center gap-2">
+          <Link
+            href="/teacher/students/import"
+            className="rounded-md border border-blue-200 px-3 py-1.5 text-sm font-medium text-blue-600 hover:bg-blue-50"
+          >
+            Import students
+          </Link>
+          <YearFilter />
+        </div>
       </div>
 
       <div className="mt-6 overflow-x-auto rounded-lg border border-slate-200 bg-white">
