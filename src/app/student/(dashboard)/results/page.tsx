@@ -69,13 +69,10 @@ export default async function ResultsPage() {
           const questions = questionsByTestId.get(session.test_id) ?? [];
           const answers = answersBySessionId.get(session.id) ?? [];
           const score = test ? computeScore(questions, answers, test) : null;
+          const released = test?.results_released ?? true;
 
-          return (
-            <Link
-              key={session.id}
-              href={`/student/results/${session.id}`}
-              className="flex items-center justify-between rounded-lg border border-slate-200 bg-white px-4 py-3 hover:border-slate-300"
-            >
+          const content = (
+            <>
               <div>
                 <p className="text-sm font-medium text-slate-900">{test?.title ?? "Untitled test"}</p>
                 <p className="text-xs text-slate-500">
@@ -84,10 +81,14 @@ export default async function ResultsPage() {
                 </p>
               </div>
               <div className="flex items-center gap-3">
-                {score && (
-                  <span className="text-sm font-semibold text-blue-600">
-                    {score.totalScore} / {score.maxScore}
-                  </span>
+                {released ? (
+                  score && (
+                    <span className="text-sm font-semibold text-blue-600">
+                      {score.totalScore} / {score.maxScore}
+                    </span>
+                  )
+                ) : (
+                  <span className="text-xs font-medium text-slate-400">Pending release</span>
                 )}
                 <span
                   className={`rounded-md px-2.5 py-1 text-xs font-medium ${
@@ -99,7 +100,24 @@ export default async function ResultsPage() {
                   {STATUS_LABEL[session.status as "submitted" | "auto_submitted"]}
                 </span>
               </div>
+            </>
+          );
+
+          return released ? (
+            <Link
+              key={session.id}
+              href={`/student/results/${session.id}`}
+              className="flex items-center justify-between rounded-lg border border-slate-200 bg-white px-4 py-3 hover:border-slate-300"
+            >
+              {content}
             </Link>
+          ) : (
+            <div
+              key={session.id}
+              className="flex items-center justify-between rounded-lg border border-slate-200 bg-white px-4 py-3"
+            >
+              {content}
+            </div>
           );
         })}
         {sessions.length === 0 && (

@@ -34,3 +34,11 @@ export async function publishTest(testId: string) {
   if (error) throw new Error(error.message);
   revalidatePath("/teacher");
 }
+
+export async function setResultsReleased(testId: string, released: boolean) {
+  const supabase = await createClient();
+  const { error } = await supabase.from("tests").update({ results_released: released }).eq("id", testId);
+  if (error) throw new Error(error.message);
+  revalidatePath(`/teacher/tests/${testId}/results`);
+  revalidatePath("/student/results");
+}

@@ -35,6 +35,21 @@ export default async function ResultDetailPage({
   ]);
   const test = testData as Test | null;
   if (!test) notFound();
+  if (!test.results_released) {
+    return (
+      <div className="max-w-3xl">
+        <Link href="/student/results" className="text-sm text-slate-500 hover:text-slate-700">
+          ← Back to results
+        </Link>
+        <div className="mt-6 rounded-lg border border-slate-200 bg-white p-6 text-center">
+          <p className="text-sm font-medium text-slate-700">{test.title}</p>
+          <p className="mt-1 text-sm text-slate-500">
+            Your teacher hasn&apos;t released results for this test yet.
+          </p>
+        </div>
+      </div>
+    );
+  }
   const questions = (questionsData as Question[] | null) ?? [];
 
   const score = computeScore(questions, answers, test);

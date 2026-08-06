@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getAuthedUser } from "@/lib/supabase/auth";
 import { computeScore } from "@/lib/scoring";
+import { ResultsReleaseToggle } from "./ResultsReleaseToggle";
 import type { Answer, Profile, Question, Test, TestSession } from "@/types/database";
 
 export default async function TestResultsPage({ params }: { params: Promise<{ id: string }> }) {
@@ -57,14 +58,17 @@ export default async function TestResultsPage({ params }: { params: Promise<{ id
             {sessions.length} submission{sessions.length === 1 ? "" : "s"}
           </p>
         </div>
-        {sessions.length > 0 && (
-          <a
-            href={`/teacher/tests/${id}/results/export`}
-            className="rounded-md border border-blue-200 px-3 py-1.5 text-sm font-medium text-blue-600 hover:bg-blue-50"
-          >
-            Download CSV
-          </a>
-        )}
+        <div className="flex items-center gap-2">
+          <ResultsReleaseToggle testId={test.id} released={test.results_released} />
+          {sessions.length > 0 && (
+            <a
+              href={`/teacher/tests/${id}/results/export`}
+              className="rounded-md border border-blue-200 px-3 py-1.5 text-sm font-medium text-blue-600 hover:bg-blue-50"
+            >
+              Download CSV
+            </a>
+          )}
+        </div>
       </div>
 
       <div className="mt-6 overflow-x-auto rounded-lg border border-slate-200 bg-white">
