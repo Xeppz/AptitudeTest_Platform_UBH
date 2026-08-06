@@ -38,6 +38,13 @@ export default async function ReviewTestPage({
             {questions.length} question{questions.length === 1 ? "" : "s"} · status: {test.status} · publishing
             for: {test.target_year ? STUDENT_YEAR_LABELS[test.target_year] : "all years"}
           </p>
+          <p className="text-sm text-slate-500">
+            {test.starts_at || test.ends_at
+              ? `Open ${test.starts_at ? new Date(test.starts_at).toLocaleString() : "now"} → ${
+                  test.ends_at ? new Date(test.ends_at).toLocaleString() : "no end"
+                }`
+              : "Available any time once published"}
+          </p>
         </div>
         {test.status === "draft" && <PublishButton testId={test.id} />}
       </div>

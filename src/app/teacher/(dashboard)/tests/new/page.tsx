@@ -32,6 +32,20 @@ export default function NewTestPage() {
 
     const formData = new FormData(event.currentTarget);
 
+    // datetime-local inputs give a plain "YYYY-MM-DDTHH:mm" string with no
+    // timezone info. It has to be converted to an absolute ISO timestamp
+    // here, in the browser — the server runs in a different timezone
+    // (Vercel's function region), so parsing the same raw string there
+    // would silently shift it.
+    for (const key of ["startsAt", "endsAt"]) {
+      const raw = formData.get(key);
+      if (typeof raw === "string" && raw) {
+        formData.set(key, new Date(raw).toISOString());
+      } else {
+        formData.delete(key);
+      }
+    }
+
     try {
       const res = await fetch("/api/tests", { method: "POST", body: formData });
       const body = await res.json();
@@ -103,6 +117,35 @@ export default function NewTestPage() {
             ))}
           </select>
         </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label htmlFor="startsAt" className="block text-sm text-slate-700">
+              Opens at (optional)
+            </label>
+            <input
+              id="startsAt"
+              name="startsAt"
+              type="datetime-local"
+              className="mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+            />
+          </div>
+          <div>
+            <label htmlFor="endsAt" className="block text-sm text-slate-700">
+              Closes at (optional)
+            </label>
+            <input
+              id="endsAt"
+              name="endsAt"
+              type="datetime-local"
+              className="mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+            />
+          </div>
+        </div>
+
+        <p className="-mt-2 text-xs text-slate-500">
+          Leave both blank for a test that&apos;s available any time once published.
+        </p>
 
         <div className="grid grid-cols-2 gap-4">
           <div>

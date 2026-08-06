@@ -32,11 +32,20 @@ export async function POST(request: NextRequest) {
     ? (targetYearRaw as StudentYear)
     : null;
 
+  const startsAtRaw = String(formData.get("startsAt") ?? "");
+  const endsAtRaw = String(formData.get("endsAt") ?? "");
+  const startsAt = startsAtRaw && !isNaN(Date.parse(startsAtRaw)) ? startsAtRaw : null;
+  const endsAt = endsAtRaw && !isNaN(Date.parse(endsAtRaw)) ? endsAtRaw : null;
+
   if (!title || !durationMinutes || durationMinutes <= 0) {
     return NextResponse.json(
       { error: "Title and a positive duration are required." },
       { status: 400 },
     );
+  }
+
+  if (startsAt && endsAt && new Date(startsAt) >= new Date(endsAt)) {
+    return NextResponse.json({ error: "The test must close after it opens." }, { status: 400 });
   }
 
   if (!pastedText) {
@@ -64,6 +73,8 @@ export async function POST(request: NextRequest) {
       negative_marks: negativeMarks,
       max_violations: maxViolations,
       target_year: targetYear,
+      starts_at: startsAt,
+      ends_at: endsAt,
       status: "draft",
     })
     .select("id")

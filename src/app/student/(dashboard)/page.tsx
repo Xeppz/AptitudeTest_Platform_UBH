@@ -29,12 +29,20 @@ export default async function StudentDashboard() {
   const sessions = (sessionsData as TestSession[] | null) ?? [];
   const sessionByTestId = new Map(sessions.map((s) => [s.test_id, s]));
 
+  const now = new Date().getTime();
+  function scheduleState(test: Test): "open" | "not_yet_open" | "closed" {
+    if (test.starts_at && now < new Date(test.starts_at).getTime()) return "not_yet_open";
+    if (test.ends_at && now > new Date(test.ends_at).getTime()) return "closed";
+    return "open";
+  }
+
   const completedCount = sessions.filter(
     (s) => s.status === "submitted" || s.status === "auto_submitted",
   ).length;
   const availableCount = tests.filter((t) => {
     const status = sessionByTestId.get(t.id)?.status ?? "not_started";
-    return status === "not_started" || status === "in_progress";
+    if (status === "in_progress") return true;
+    return status === "not_started" && scheduleState(t) === "open";
   }).length;
 
   return (
@@ -65,6 +73,9 @@ export default async function StudentDashboard() {
           const status = sessionByTestId.get(test.id)?.status ?? "not_started";
           const done = status === "submitted" || status === "auto_submitted";
           const href = `/student/tests/${test.id}/${done || status === "in_progress" ? "take" : "verify"}`;
+          // A test already in progress or finished stays actionable regardless
+          // of the window — only a fresh, not-yet-started attempt is gated.
+          const schedule = status === "not_started" ? scheduleState(test) : "open";
 
           return (
             <div
@@ -73,18 +84,29 @@ export default async function StudentDashboard() {
             >
               <div className="min-w-0">
                 <p className="truncate text-sm font-medium text-slate-900">{test.title}</p>
-                <p className="text-xs text-slate-500">{test.duration_minutes} minutes</p>
+                <p className="text-xs text-slate-500">
+                  {test.duration_minutes} minutes
+                  {schedule === "not_yet_open" &&
+                    ` · Opens ${new Date(test.starts_at as string).toLocaleString()}`}
+                  {schedule === "closed" && ` · Closed ${new Date(test.ends_at as string).toLocaleString()}`}
+                </p>
               </div>
-              <Link
-                href={href}
-                className={`shrink-0 rounded-md px-3 py-1.5 text-xs font-medium ${
-                  done
-                    ? "border border-slate-300 text-slate-500 hover:bg-slate-50"
-                    : "bg-blue-600 text-white hover:bg-blue-700"
-                }`}
-              >
-                {STATUS_LABEL[status]}
-              </Link>
+              {schedule === "open" ? (
+                <Link
+                  href={href}
+                  className={`shrink-0 rounded-md px-3 py-1.5 text-xs font-medium ${
+                    done
+                      ? "border border-slate-300 text-slate-500 hover:bg-slate-50"
+                      : "bg-blue-600 text-white hover:bg-blue-700"
+                  }`}
+                >
+                  {STATUS_LABEL[status]}
+                </Link>
+              ) : (
+                <span className="shrink-0 rounded-md border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-400">
+                  {schedule === "not_yet_open" ? "Not open yet" : "Closed"}
+                </span>
+              )}
             </div>
           );
         })}

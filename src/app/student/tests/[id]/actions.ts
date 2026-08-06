@@ -27,6 +27,20 @@ export async function startSession(testId: string) {
     return { sessionId: existing.id };
   }
 
+  const { data: testData } = await supabase
+    .from("tests")
+    .select("starts_at, ends_at")
+    .eq("id", testId)
+    .single();
+  const test = testData as { starts_at: string | null; ends_at: string | null } | null;
+  const now = Date.now();
+  if (test?.starts_at && now < new Date(test.starts_at).getTime()) {
+    throw new Error(`This test opens at ${new Date(test.starts_at).toLocaleString()}.`);
+  }
+  if (test?.ends_at && now > new Date(test.ends_at).getTime()) {
+    throw new Error(`This test closed at ${new Date(test.ends_at).toLocaleString()}.`);
+  }
+
   const { data: sessionData, error } = await supabase
     .from("test_sessions")
     .upsert(
