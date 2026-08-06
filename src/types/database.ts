@@ -20,6 +20,7 @@ export interface Profile {
   full_name: string;
   email: string;
   year: StudentYear | null;
+  must_change_password: boolean;
   created_at: string;
 }
 
@@ -43,6 +44,7 @@ export interface Test {
   status: TestStatus;
   source_pdf_path: string | null;
   target_year: StudentYear | null;
+  results_released: boolean;
   starts_at: string | null;
   ends_at: string | null;
   created_at: string;

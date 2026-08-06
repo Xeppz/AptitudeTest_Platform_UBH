@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { LogOut } from "lucide-react";
+import { KeyRound, LogOut } from "lucide-react";
 import { getAuthedProfile, getAuthedUser } from "@/lib/supabase/auth";
 import { SignOutForm } from "@/components/SignOutForm";
 import { SidebarNav } from "./SidebarNav";
@@ -15,6 +15,7 @@ export default async function TeacherDashboardLayout({
 
   const profile = await getAuthedProfile(user.id);
   if (profile?.role === "student") redirect("/student");
+  if (profile?.must_change_password) redirect("/change-password");
 
   return (
     <div className="flex min-h-screen flex-col bg-slate-50 md:flex-row">
@@ -25,12 +26,21 @@ export default async function TeacherDashboardLayout({
           </span>
           <span className="text-sm font-semibold text-slate-900">AptiTest</span>
         </Link>
-        <SignOutForm
-          ariaLabel="Log out"
-          className="flex h-8 w-8 items-center justify-center rounded-md text-blue-600 transition-colors hover:bg-blue-50 hover:text-blue-700"
-        >
-          <LogOut size={18} />
-        </SignOutForm>
+        <div className="flex items-center gap-1">
+          <Link
+            href="/change-password"
+            aria-label="Change password"
+            className="flex h-8 w-8 items-center justify-center rounded-md text-slate-500 transition-colors hover:bg-slate-100"
+          >
+            <KeyRound size={18} />
+          </Link>
+          <SignOutForm
+            ariaLabel="Log out"
+            className="flex h-8 w-8 items-center justify-center rounded-md text-blue-600 transition-colors hover:bg-blue-50 hover:text-blue-700"
+          >
+            <LogOut size={18} />
+          </SignOutForm>
+        </div>
       </header>
 
       <aside className="hidden w-56 flex-col border-r border-slate-200 bg-white px-4 py-5 md:flex">
@@ -47,6 +57,12 @@ export default async function TeacherDashboardLayout({
           <p className="truncate px-3 text-xs text-slate-400">
             {profile?.full_name} · {profile?.role}
           </p>
+          <Link
+            href="/change-password"
+            className="mt-1 flex w-full items-center rounded-md px-3 py-2 text-left text-sm text-slate-500 transition-colors hover:bg-slate-100"
+          >
+            Change password
+          </Link>
           <SignOutForm className="mt-1 flex w-full items-center rounded-md px-3 py-2 text-left text-sm font-medium text-blue-600 transition-colors hover:bg-blue-50 hover:text-blue-700">
             Log out
           </SignOutForm>

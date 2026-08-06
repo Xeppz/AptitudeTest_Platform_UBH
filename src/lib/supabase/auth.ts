@@ -19,8 +19,8 @@ export const getAuthedProfile = cache(async (userId: string) => {
   const supabase = await createClient();
   const { data } = await supabase
     .from("profiles")
-    .select("full_name, role")
+    .select("full_name, role, must_change_password")
     .eq("id", userId)
     .single();
-  return data as Pick<Profile, "full_name" | "role"> | null;
+  return data as Pick<Profile, "full_name" | "role" | "must_change_password"> | null;
 });
