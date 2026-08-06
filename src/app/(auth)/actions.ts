@@ -32,6 +32,16 @@ export async function signUp(formData: FormData) {
     redirect(`/signup?error=${encodeURIComponent(error.message)}`);
   }
 
+  // Supabase's anti-enumeration behavior: signUp() for an email that's
+  // already registered returns a fake "success" (no error) with an empty
+  // identities array, rather than telling the caller the account exists.
+  // Without this check, a duplicate signup silently fell through to "check
+  // your email to confirm" — no new email is actually sent, so the student
+  // was just left confused rather than blocked.
+  if (data.user && data.user.identities && data.user.identities.length === 0) {
+    redirect(`/signup?error=${encodeURIComponent("An account with this email already exists. Log in instead.")}`);
+  }
+
   if (!data.session) {
     redirect("/login?message=Check your email to confirm your account, then log in.");
   }
