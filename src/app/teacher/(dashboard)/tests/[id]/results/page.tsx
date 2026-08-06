@@ -50,10 +50,22 @@ export default async function TestResultsPage({ params }: { params: Promise<{ id
       <Link href="/teacher" className="text-sm text-slate-500 hover:text-slate-700">
         ← Back to dashboard
       </Link>
-      <p className="mt-2 text-2xl font-semibold text-slate-900">{test.title} — results</p>
-      <p className="mt-1 text-sm text-slate-500">
-        {sessions.length} submission{sessions.length === 1 ? "" : "s"}
-      </p>
+      <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <p className="text-2xl font-semibold text-slate-900">{test.title} — results</p>
+          <p className="mt-1 text-sm text-slate-500">
+            {sessions.length} submission{sessions.length === 1 ? "" : "s"}
+          </p>
+        </div>
+        {sessions.length > 0 && (
+          <a
+            href={`/teacher/tests/${id}/results/export`}
+            className="rounded-md border border-blue-200 px-3 py-1.5 text-sm font-medium text-blue-600 hover:bg-blue-50"
+          >
+            Download CSV
+          </a>
+        )}
+      </div>
 
       <div className="mt-6 overflow-x-auto rounded-lg border border-slate-200 bg-white">
         <table className="w-full text-sm">
