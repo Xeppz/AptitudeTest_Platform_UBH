@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { getAuthedUser } from "@/lib/supabase/auth";
+import { getAuthedProfile, getAuthedUser } from "@/lib/supabase/auth";
 import { computeScore } from "@/lib/scoring";
 import { ResultsReleaseToggle } from "./ResultsReleaseToggle";
 import type { Answer, Profile, Question, Test, TestSession } from "@/types/database";
@@ -12,7 +12,8 @@ export default async function TestResultsPage({ params }: { params: Promise<{ id
   if (!user) redirect("/login");
 
   const supabase = await createClient();
-  const [{ data: testData }, { data: sessionsData }, { data: questionsData }] = await Promise.all([
+  const [profile, { data: testData }, { data: sessionsData }, { data: questionsData }] = await Promise.all([
+    getAuthedProfile(user.id),
     supabase.from("tests").select("*").eq("id", id).single(),
     supabase
       .from("test_sessions")
@@ -23,7 +24,9 @@ export default async function TestResultsPage({ params }: { params: Promise<{ id
     supabase.from("questions").select("*").eq("test_id", id).order("order_index", { ascending: true }),
   ]);
   const test = testData as Test | null;
-  if (!test || test.teacher_id !== user.id) notFound();
+  // Admins share one workspace and can view any test's results, not just
+  // their own — mirrors the RLS bypass in 0017_admin_shared_tests.sql.
+  if (!test || (test.teacher_id !== user.id && profile?.role !== "admin")) notFound();
   const sessions = (sessionsData as TestSession[] | null) ?? [];
   const questions = (questionsData as Question[] | null) ?? [];
 

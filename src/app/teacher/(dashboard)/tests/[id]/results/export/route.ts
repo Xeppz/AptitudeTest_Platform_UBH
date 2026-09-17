@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { getAuthedProfile } from "@/lib/supabase/auth";
 import { computeScore } from "@/lib/scoring";
 import { STUDENT_YEAR_LABELS } from "@/lib/studentYear";
 import type { Answer, Profile, Question, Test, TestSession } from "@/types/database";
@@ -21,7 +22,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const [{ data: testData }, { data: sessionsData }, { data: questionsData }] = await Promise.all([
+  const [profile, { data: testData }, { data: sessionsData }, { data: questionsData }] = await Promise.all([
+    getAuthedProfile(user.id),
     supabase.from("tests").select("*").eq("id", id).single(),
     supabase
       .from("test_sessions")
@@ -32,9 +34,9 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     supabase.from("questions").select("*").eq("test_id", id).order("order_index", { ascending: true }),
   ]);
   const test = testData as Test | null;
-  // Same ownership rule as the results page — no RLS bypass here, this is a
-  // regular RLS-scoped client, teacher_id === auth.uid() is what actually gates it.
-  if (!test || test.teacher_id !== user.id) {
+  // Admins share one workspace and can export any test's results, not just
+  // their own — mirrors the RLS bypass in 0017_admin_shared_tests.sql.
+  if (!test || (test.teacher_id !== user.id && profile?.role !== "admin")) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 

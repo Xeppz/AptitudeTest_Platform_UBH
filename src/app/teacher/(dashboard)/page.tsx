@@ -21,14 +21,15 @@ export default async function TeacherDashboard() {
   if (!user) redirect("/login");
 
   const supabase = await createClient();
-  const [profile, { data: testsData }] = await Promise.all([
-    getAuthedProfile(user.id),
-    supabase
-      .from("tests")
-      .select("*")
-      .eq("teacher_id", user.id)
-      .order("created_at", { ascending: false }),
-  ]);
+  const profile = await getAuthedProfile(user.id);
+  const isAdmin = profile?.role === "admin";
+
+  // Admins share one workspace and see every test, not just their own —
+  // enforced at the RLS level too (0017_admin_shared_tests.sql), this just
+  // avoids asking for rows the query itself would otherwise filter out.
+  let testsQuery = supabase.from("tests").select("*").order("created_at", { ascending: false });
+  if (!isAdmin) testsQuery = testsQuery.eq("teacher_id", user.id);
+  const { data: testsData } = await testsQuery;
   const tests = (testsData as Test[] | null) ?? [];
   const publishedCount = tests.filter((t) => t.status === "published").length;
   const draftCount = tests.filter((t) => t.status === "draft").length;
@@ -65,7 +66,7 @@ export default async function TeacherDashboard() {
       </div>
 
       <div className="mt-8 flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-sm font-medium text-slate-700">Your tests</h2>
+        <h2 className="text-sm font-medium text-slate-700">{isAdmin ? "All tests" : "Your tests"}</h2>
         <Link
           href="/teacher/tests/new"
           className="rounded-md bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700"

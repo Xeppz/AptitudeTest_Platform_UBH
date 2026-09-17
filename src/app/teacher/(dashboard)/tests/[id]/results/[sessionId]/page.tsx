@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { getAuthedUser } from "@/lib/supabase/auth";
+import { getAuthedProfile, getAuthedUser } from "@/lib/supabase/auth";
 import { computeScore } from "@/lib/scoring";
 import { QuestionReviewCard } from "@/components/QuestionReviewCard";
 import type { Answer, Profile, ProctoringLog, Question, Test, TestSession } from "@/types/database";
@@ -30,12 +30,14 @@ export default async function StudentResultDetailPage({
 
   const supabase = await createClient();
   const [
+    viewerProfile,
     { data: testData },
     { data: sessionData },
     { data: questionsData },
     { data: answersData },
     { data: logsData },
   ] = await Promise.all([
+    getAuthedProfile(user.id),
     supabase.from("tests").select("*").eq("id", id).single(),
     supabase.from("test_sessions").select("*").eq("id", sessionId).eq("test_id", id).single(),
     supabase.from("questions").select("*").eq("test_id", id).order("order_index", { ascending: true }),
@@ -43,7 +45,9 @@ export default async function StudentResultDetailPage({
     supabase.from("proctoring_logs").select("*").eq("session_id", sessionId).order("created_at", { ascending: true }),
   ]);
   const test = testData as Test | null;
-  if (!test || test.teacher_id !== user.id) notFound();
+  // Admins share one workspace and can view any test's results, not just
+  // their own — mirrors the RLS bypass in 0017_admin_shared_tests.sql.
+  if (!test || (test.teacher_id !== user.id && viewerProfile?.role !== "admin")) notFound();
 
   const session = sessionData as TestSession | null;
   if (!session || (session.status !== "submitted" && session.status !== "auto_submitted")) notFound();
