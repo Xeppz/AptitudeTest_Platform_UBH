@@ -47,27 +47,27 @@ export default async function StudentDashboard() {
 
   return (
     <div>
-      <p className="text-2xl font-semibold text-slate-900">
+      <p className="text-2xl font-semibold text-slate-900 dark:text-slate-100">
         Welcome back{profile?.full_name ? `, ${profile.full_name.split(" ")[0]}` : ""}
       </p>
-      <p className="mt-1 text-sm text-slate-500">
+      <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
         {availableCount > 0
           ? `You have ${availableCount} test${availableCount === 1 ? "" : "s"} available to take.`
           : "No tests waiting on you right now."}
       </p>
 
       <div className="mt-6 grid max-w-md grid-cols-2 gap-3">
-        <div className="rounded-lg bg-white p-4 shadow-sm ring-1 ring-slate-200">
-          <p className="text-xs text-slate-500">Available now</p>
-          <p className="mt-1 text-2xl font-semibold text-slate-900">{availableCount}</p>
+        <div className="rounded-lg bg-white dark:bg-slate-900 p-4 shadow-sm ring-1 ring-slate-200 dark:ring-slate-800">
+          <p className="text-xs text-slate-500 dark:text-slate-400">Available now</p>
+          <p className="mt-1 text-2xl font-semibold text-slate-900 dark:text-slate-100">{availableCount}</p>
         </div>
-        <div className="rounded-lg bg-white p-4 shadow-sm ring-1 ring-slate-200">
-          <p className="text-xs text-slate-500">Tests completed</p>
-          <p className="mt-1 text-2xl font-semibold text-blue-600">{completedCount}</p>
+        <div className="rounded-lg bg-white dark:bg-slate-900 p-4 shadow-sm ring-1 ring-slate-200 dark:ring-slate-800">
+          <p className="text-xs text-slate-500 dark:text-slate-400">Tests completed</p>
+          <p className="mt-1 text-2xl font-semibold text-blue-600 dark:text-blue-400">{completedCount}</p>
         </div>
       </div>
 
-      <h2 className="mt-8 text-sm font-medium text-slate-700">Available tests</h2>
+      <h2 className="mt-8 text-sm font-medium text-slate-700 dark:text-slate-300">Available tests</h2>
       <div className="mt-3 flex flex-col gap-2">
         {tests.map((test) => {
           const status = sessionByTestId.get(test.id)?.status ?? "not_started";
@@ -80,11 +80,11 @@ export default async function StudentDashboard() {
           return (
             <div
               key={test.id}
-              className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-slate-200 bg-white px-4 py-3"
+              className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-4 py-3"
             >
               <div className="min-w-0">
-                <p className="truncate text-sm font-medium text-slate-900">{test.title}</p>
-                <p className="text-xs text-slate-500">
+                <p className="truncate text-sm font-medium text-slate-900 dark:text-slate-100">{test.title}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
                   {test.duration_minutes} minutes
                   {schedule === "not_yet_open" &&
                     ` · Opens ${new Date(test.starts_at as string).toLocaleString()}`}
@@ -96,14 +96,14 @@ export default async function StudentDashboard() {
                   href={href}
                   className={`shrink-0 rounded-md px-3 py-1.5 text-xs font-medium ${
                     done
-                      ? "border border-slate-300 text-slate-500 hover:bg-slate-50"
+                      ? "border border-slate-300 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-950"
                       : "bg-blue-600 text-white hover:bg-blue-700"
                   }`}
                 >
                   {STATUS_LABEL[status]}
                 </Link>
               ) : (
-                <span className="shrink-0 rounded-md border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-400">
+                <span className="shrink-0 rounded-md border border-slate-200 dark:border-slate-800 px-3 py-1.5 text-xs font-medium text-slate-400 dark:text-slate-500">
                   {schedule === "not_yet_open" ? "Not open yet" : "Closed"}
                 </span>
               )}
@@ -111,7 +111,7 @@ export default async function StudentDashboard() {
           );
         })}
         {tests.length === 0 && (
-          <p className="text-sm text-slate-500">No tests available yet.</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400">No tests available yet.</p>
         )}
       </div>
     </div>

@@ -15,13 +15,13 @@ export default async function ProfilePage() {
 
   return (
     <div className="max-w-md">
-      <p className="text-2xl font-semibold text-slate-900">Profile</p>
-      <p className="mt-1 text-sm text-slate-500">Your account details.</p>
+      <p className="text-2xl font-semibold text-slate-900 dark:text-slate-100">Profile</p>
+      <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Your account details.</p>
 
-      <div className="mt-6 rounded-lg border border-slate-200 bg-white p-5">
+      <div className="mt-6 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
         <form action={updateProfile} className="flex flex-col gap-4">
           <div>
-            <label htmlFor="fullName" className="block text-sm text-slate-700">
+            <label htmlFor="fullName" className="block text-sm text-slate-700 dark:text-slate-300">
               Full name
             </label>
             <input
@@ -30,18 +30,18 @@ export default async function ProfilePage() {
               type="text"
               required
               defaultValue={profile?.full_name}
-              className="mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+              className="mt-1 w-full rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-slate-900 dark:text-slate-100 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
             />
           </div>
           <div>
-            <label htmlFor="year" className="block text-sm text-slate-700">
+            <label htmlFor="year" className="block text-sm text-slate-700 dark:text-slate-300">
               Year
             </label>
             <select
               id="year"
               name="year"
               defaultValue={profile?.year ?? ""}
-              className="mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+              className="mt-1 w-full rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-slate-900 dark:text-slate-100 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
             >
               <option value="">Not set</option>
               {STUDENT_YEARS.map((y) => (
@@ -52,14 +52,14 @@ export default async function ProfilePage() {
             </select>
           </div>
           <div>
-            <label className="block text-sm text-slate-700">Email</label>
-            <p className="mt-1 rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500">
+            <label className="block text-sm text-slate-700 dark:text-slate-300">Email</label>
+            <p className="mt-1 rounded-md border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-3 py-2 text-sm text-slate-500 dark:text-slate-400">
               {profile?.email}
             </p>
           </div>
           <div>
-            <label className="block text-sm text-slate-700">Role</label>
-            <p className="mt-1 rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm capitalize text-slate-500">
+            <label className="block text-sm text-slate-700 dark:text-slate-300">Role</label>
+            <p className="mt-1 rounded-md border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-3 py-2 text-sm capitalize text-slate-500 dark:text-slate-400">
               {profile?.role}
             </p>
           </div>

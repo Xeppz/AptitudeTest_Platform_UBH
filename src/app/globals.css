@@ -1,8 +1,18 @@
 @import "tailwindcss";
 
+/* Manually-toggled dark mode (a .dark class on <html>), not automatic
+   prefers-color-scheme — Tailwind v4 defaults to the latter, which a
+   toggle button couldn't override. See ThemeToggle.tsx. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   --background: #ffffff;
   --foreground: #0f172a;
+}
+
+.dark {
+  --background: #020617;
+  --foreground: #f1f5f9;
 }
 
 @theme inline {
@@ -12,7 +22,6 @@
   --font-mono: var(--font-geist-mono);
 }
 
-/* Fixed light theme regardless of OS preference — this app is blue/white only. */
 body {
   background: var(--background);
   color: var(--foreground);

@@ -76,56 +76,56 @@ export default async function StudentResultDetailPage({
 
   return (
     <div className="max-w-3xl">
-      <Link href={`/teacher/tests/${id}/results`} className="text-sm text-slate-500 hover:text-slate-700">
+      <Link href={`/teacher/tests/${id}/results`} className="text-sm text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300">
         ← Back to results
       </Link>
 
       <div className="mt-2 flex items-start justify-between">
         <div>
-          <p className="text-2xl font-semibold text-slate-900">{profile?.full_name ?? "Unknown student"}</p>
-          <p className="mt-1 text-sm text-slate-500">
+          <p className="text-2xl font-semibold text-slate-900 dark:text-slate-100">{profile?.full_name ?? "Unknown student"}</p>
+          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
             {profile?.email} ·{" "}
             {session.submitted_at ? new Date(session.submitted_at).toLocaleString() : "—"}
           </p>
         </div>
         <div className="text-right">
-          <p className="text-2xl font-semibold text-blue-600">
+          <p className="text-2xl font-semibold text-blue-600 dark:text-blue-400">
             {score.totalScore} / {score.maxScore}
           </p>
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-slate-500 dark:text-slate-400">
             {score.correctCount} correct · {score.incorrectCount} incorrect · {score.unansweredCount} unanswered
           </p>
         </div>
       </div>
 
-      <div className="mt-6 rounded-lg border border-slate-200 bg-white p-4">
-        <p className="text-sm font-medium text-slate-700">
+      <div className="mt-6 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4">
+        <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
           Flag history ({session.violation_count} violation{session.violation_count === 1 ? "" : "s"})
         </p>
         <div className="mt-3 flex flex-col gap-3">
           {logsWithImages.map((log) => (
-            <div key={log.id} className="flex items-start gap-3 rounded-md border border-slate-100 p-2">
+            <div key={log.id} className="flex items-start gap-3 rounded-md border border-slate-100 dark:border-slate-800 p-2">
               {log.imageUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element -- private signed URL, expires hourly; not a candidate for next/image optimization
                 <img
                   src={log.imageUrl}
                   alt=""
-                  className="h-16 w-16 shrink-0 rounded object-cover ring-1 ring-slate-200"
+                  className="h-16 w-16 shrink-0 rounded object-cover ring-1 ring-slate-200 dark:ring-slate-800"
                 />
               ) : (
-                <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded bg-slate-100 text-[10px] text-slate-400 ring-1 ring-slate-200">
+                <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded bg-slate-100 dark:bg-slate-800 text-[10px] text-slate-400 dark:text-slate-500 ring-1 ring-slate-200 dark:ring-slate-800">
                   No photo
                 </div>
               )}
               <div className="min-w-0">
-                <p className="text-sm text-slate-800">
+                <p className="text-sm text-slate-800 dark:text-slate-200">
                   {VIOLATION_LABELS[log.event_type] ?? log.event_type.replace(/_/g, " ")}
                 </p>
-                <p className="text-xs text-slate-500">{new Date(log.created_at).toLocaleString()}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">{new Date(log.created_at).toLocaleString()}</p>
               </div>
             </div>
           ))}
-          {logsWithImages.length === 0 && <p className="text-xs text-slate-400">No proctoring events logged.</p>}
+          {logsWithImages.length === 0 && <p className="text-xs text-slate-400 dark:text-slate-500">No proctoring events logged.</p>}
         </div>
       </div>
 

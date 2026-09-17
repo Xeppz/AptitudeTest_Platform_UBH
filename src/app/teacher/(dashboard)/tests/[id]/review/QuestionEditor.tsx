@@ -59,13 +59,13 @@ export function QuestionEditor({
   if (deleted) return null;
 
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+    <div className="rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 shadow-sm">
       <div className="flex items-center justify-between">
-        <span className="text-xs text-slate-500">Question {index + 1}</span>
+        <span className="text-xs text-slate-500 dark:text-slate-400">Question {index + 1}</span>
         <input
           value={edit.category}
           onChange={(e) => field("category", e.target.value)}
-          className="rounded-md border border-slate-300 bg-white px-2 py-1 text-xs text-slate-700"
+          className="rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-2 py-1 text-xs text-slate-700 dark:text-slate-300"
         />
       </div>
 
@@ -73,32 +73,32 @@ export function QuestionEditor({
         value={edit.question_text}
         onChange={(e) => field("question_text", e.target.value)}
         rows={2}
-        className="mt-2 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900"
+        className="mt-2 w-full rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-900 dark:text-slate-100"
       />
 
       <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
         {OPTION_LETTERS.map((letter) => {
           const key = `option_${letter.toLowerCase()}` as keyof QuestionEdit;
           return (
-            <label key={letter} className="flex items-center gap-2 text-sm text-slate-700">
+            <label key={letter} className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
               <input
                 type="radio"
                 name={`correct-${question.id}`}
                 checked={edit.correct_option === letter}
                 onChange={() => field("correct_option", letter)}
               />
-              <span className="w-4 text-slate-400">{letter}</span>
+              <span className="w-4 text-slate-400 dark:text-slate-500">{letter}</span>
               <input
                 value={edit[key]}
                 onChange={(e) => field(key, e.target.value)}
-                className="flex-1 rounded-md border border-slate-300 bg-white px-2 py-1 text-sm text-slate-900"
+                className="flex-1 rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-2 py-1 text-sm text-slate-900 dark:text-slate-100"
               />
             </label>
           );
         })}
       </div>
 
-      {error && <p className="mt-2 text-xs text-red-600">{error}</p>}
+      {error && <p className="mt-2 text-xs text-red-600 dark:text-red-400">{error}</p>}
 
       <div className="mt-3 flex gap-2">
         <button
@@ -111,7 +111,7 @@ export function QuestionEditor({
         <button
           onClick={handleDelete}
           disabled={saving}
-          className="rounded-md border border-red-200 px-3 py-1 text-xs text-red-600 hover:bg-red-50 disabled:opacity-50"
+          className="rounded-md border border-red-200 dark:border-red-800 px-3 py-1 text-xs text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950 disabled:opacity-50"
         >
           Delete
         </button>

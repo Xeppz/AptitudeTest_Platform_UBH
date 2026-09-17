@@ -61,21 +61,21 @@ export default function NewTestPage() {
 
   return (
     <div className="max-w-xl">
-      <p className="text-2xl font-semibold text-slate-900">Create a test</p>
-      <p className="mt-1 text-sm text-slate-500">
+      <p className="text-2xl font-semibold text-slate-900 dark:text-slate-100">Create a test</p>
+      <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
         Paste your questions below in the format shown, and they&apos;ll be parsed automatically.
         You&apos;ll get a chance to review and edit everything before publishing.
       </p>
 
       {error && (
-        <pre className="mt-4 whitespace-pre-wrap rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+        <pre className="mt-4 whitespace-pre-wrap rounded-md border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950 px-3 py-2 text-sm text-red-700 dark:text-red-400">
           {error}
         </pre>
       )}
 
       <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-4">
         <div>
-          <label htmlFor="title" className="block text-sm text-slate-700">
+          <label htmlFor="title" className="block text-sm text-slate-700 dark:text-slate-300">
             Title
           </label>
           <input
@@ -83,31 +83,31 @@ export default function NewTestPage() {
             name="title"
             type="text"
             required
-            className="mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+            className="mt-1 w-full rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-slate-900 dark:text-slate-100 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
           />
         </div>
 
         <div>
-          <label htmlFor="description" className="block text-sm text-slate-700">
+          <label htmlFor="description" className="block text-sm text-slate-700 dark:text-slate-300">
             Description (optional)
           </label>
           <textarea
             id="description"
             name="description"
             rows={2}
-            className="mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+            className="mt-1 w-full rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-slate-900 dark:text-slate-100 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
           />
         </div>
 
         <div>
-          <label htmlFor="targetYear" className="block text-sm text-slate-700">
+          <label htmlFor="targetYear" className="block text-sm text-slate-700 dark:text-slate-300">
             Publish for
           </label>
           <select
             id="targetYear"
             name="targetYear"
             defaultValue=""
-            className="mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+            className="mt-1 w-full rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-slate-900 dark:text-slate-100 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
           >
             <option value="">All years</option>
             {STUDENT_YEARS.map((y) => (
@@ -120,36 +120,36 @@ export default function NewTestPage() {
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label htmlFor="startsAt" className="block text-sm text-slate-700">
+            <label htmlFor="startsAt" className="block text-sm text-slate-700 dark:text-slate-300">
               Opens at (optional)
             </label>
             <input
               id="startsAt"
               name="startsAt"
               type="datetime-local"
-              className="mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+              className="mt-1 w-full rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-slate-900 dark:text-slate-100 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
             />
           </div>
           <div>
-            <label htmlFor="endsAt" className="block text-sm text-slate-700">
+            <label htmlFor="endsAt" className="block text-sm text-slate-700 dark:text-slate-300">
               Closes at (optional)
             </label>
             <input
               id="endsAt"
               name="endsAt"
               type="datetime-local"
-              className="mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+              className="mt-1 w-full rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-slate-900 dark:text-slate-100 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
             />
           </div>
         </div>
 
-        <p className="-mt-2 text-xs text-slate-500">
+        <p className="-mt-2 text-xs text-slate-500 dark:text-slate-400">
           Leave both blank for a test that&apos;s available any time once published.
         </p>
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label htmlFor="durationMinutes" className="block text-sm text-slate-700">
+            <label htmlFor="durationMinutes" className="block text-sm text-slate-700 dark:text-slate-300">
               Duration (minutes)
             </label>
             <input
@@ -159,11 +159,11 @@ export default function NewTestPage() {
               min={1}
               required
               defaultValue={30}
-              className="mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+              className="mt-1 w-full rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-slate-900 dark:text-slate-100 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
             />
           </div>
           <div>
-            <label htmlFor="maxViolations" className="block text-sm text-slate-700">
+            <label htmlFor="maxViolations" className="block text-sm text-slate-700 dark:text-slate-300">
               Max violations
             </label>
             <input
@@ -173,11 +173,11 @@ export default function NewTestPage() {
               min={1}
               required
               defaultValue={3}
-              className="mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+              className="mt-1 w-full rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-slate-900 dark:text-slate-100 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
             />
           </div>
           <div>
-            <label htmlFor="positiveMarks" className="block text-sm text-slate-700">
+            <label htmlFor="positiveMarks" className="block text-sm text-slate-700 dark:text-slate-300">
               Positive marks
             </label>
             <input
@@ -188,11 +188,11 @@ export default function NewTestPage() {
               min={0}
               required
               defaultValue={1}
-              className="mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+              className="mt-1 w-full rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-slate-900 dark:text-slate-100 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
             />
           </div>
           <div>
-            <label htmlFor="negativeMarks" className="block text-sm text-slate-700">
+            <label htmlFor="negativeMarks" className="block text-sm text-slate-700 dark:text-slate-300">
               Negative marks
             </label>
             <input
@@ -203,13 +203,13 @@ export default function NewTestPage() {
               min={0}
               required
               defaultValue={0}
-              className="mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+              className="mt-1 w-full rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-slate-900 dark:text-slate-100 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
             />
           </div>
         </div>
 
         <div>
-          <label htmlFor="pastedText" className="block text-sm text-slate-700">
+          <label htmlFor="pastedText" className="block text-sm text-slate-700 dark:text-slate-300">
             Questions
           </label>
           <textarea
@@ -218,11 +218,11 @@ export default function NewTestPage() {
             rows={14}
             required
             placeholder={FORMAT_EXAMPLE}
-            className="mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2 font-mono text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+            className="mt-1 w-full rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 font-mono text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
           />
-          <details className="mt-2 text-xs text-slate-500">
-            <summary className="cursor-pointer text-slate-600">Show format example</summary>
-            <pre className="mt-2 whitespace-pre-wrap rounded-md border border-slate-200 bg-slate-50 p-3">
+          <details className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+            <summary className="cursor-pointer text-slate-600 dark:text-slate-400">Show format example</summary>
+            <pre className="mt-2 whitespace-pre-wrap rounded-md border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-3">
               {FORMAT_EXAMPLE}
             </pre>
           </details>

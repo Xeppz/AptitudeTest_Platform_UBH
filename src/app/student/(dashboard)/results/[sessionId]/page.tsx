@@ -38,12 +38,12 @@ export default async function ResultDetailPage({
   if (!test.results_released) {
     return (
       <div className="max-w-3xl">
-        <Link href="/student/results" className="text-sm text-slate-500 hover:text-slate-700">
+        <Link href="/student/results" className="text-sm text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300">
           ← Back to results
         </Link>
-        <div className="mt-6 rounded-lg border border-slate-200 bg-white p-6 text-center">
-          <p className="text-sm font-medium text-slate-700">{test.title}</p>
-          <p className="mt-1 text-sm text-slate-500">
+        <div className="mt-6 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 text-center">
+          <p className="text-sm font-medium text-slate-700 dark:text-slate-300">{test.title}</p>
+          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
             Your teacher hasn&apos;t released results for this test yet.
           </p>
         </div>
@@ -64,36 +64,36 @@ export default async function ResultDetailPage({
 
   return (
     <div className="max-w-3xl">
-      <Link href="/student/results" className="text-sm text-slate-500 hover:text-slate-700">
+      <Link href="/student/results" className="text-sm text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300">
         ← Back to results
       </Link>
 
       <div className="mt-2 flex items-start justify-between">
         <div>
-          <p className="text-2xl font-semibold text-slate-900">{test.title}</p>
-          <p className="mt-1 text-sm text-slate-500">
+          <p className="text-2xl font-semibold text-slate-900 dark:text-slate-100">{test.title}</p>
+          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
             {session.submitted_at ? new Date(session.submitted_at).toLocaleString() : "—"} ·{" "}
             {session.violation_count} violation{session.violation_count === 1 ? "" : "s"}
           </p>
         </div>
         <div className="text-right">
-          <p className="text-2xl font-semibold text-blue-600">
+          <p className="text-2xl font-semibold text-blue-600 dark:text-blue-400">
             {score.totalScore} / {score.maxScore}
           </p>
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-slate-500 dark:text-slate-400">
             {score.correctCount} correct · {score.incorrectCount} incorrect · {score.unansweredCount} unanswered
           </p>
         </div>
       </div>
 
       {timeByCategory.size > 0 && (
-        <div className="mt-6 rounded-lg border border-slate-200 bg-white p-4">
-          <p className="text-sm font-medium text-slate-700">Time by category</p>
+        <div className="mt-6 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4">
+          <p className="text-sm font-medium text-slate-700 dark:text-slate-300">Time by category</p>
           <div className="mt-2 flex flex-wrap gap-4">
             {[...timeByCategory.entries()].map(([category, seconds]) => (
               <div key={category} className="text-sm">
-                <span className="text-slate-500">{category}: </span>
-                <span className="font-medium text-slate-900">{formatSeconds(seconds)}</span>
+                <span className="text-slate-500 dark:text-slate-400">{category}: </span>
+                <span className="font-medium text-slate-900 dark:text-slate-100">{formatSeconds(seconds)}</span>
               </div>
             ))}
           </div>

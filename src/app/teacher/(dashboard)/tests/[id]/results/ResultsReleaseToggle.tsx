@@ -28,8 +28,8 @@ export function ResultsReleaseToggle({ testId, released }: { testId: string; rel
         disabled={pending}
         className={`rounded-md border px-3 py-1.5 text-sm font-medium disabled:opacity-50 ${
           current
-            ? "border-slate-300 text-slate-600 hover:bg-slate-50"
-            : "border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100"
+            ? "border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-950"
+            : "border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900"
         }`}
       >
         {pending
@@ -38,7 +38,7 @@ export function ResultsReleaseToggle({ testId, released }: { testId: string; rel
             ? "Results visible to students"
             : "Results hidden from students"}
       </button>
-      {error && <p className="text-xs text-red-600">{error}</p>}
+      {error && <p className="text-xs text-red-600 dark:text-red-400">{error}</p>}
     </div>
   );
 }

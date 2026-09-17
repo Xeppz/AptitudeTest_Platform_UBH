@@ -20,10 +20,10 @@ export default async function VerifyPage({ params }: { params: Promise<{ id: str
   const alreadyClosed = test.ends_at && now > new Date(test.ends_at).getTime();
   if (notYetOpen || alreadyClosed) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-50 p-4 sm:p-8">
-        <div className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-6 text-center shadow-sm sm:p-8">
-          <h1 className="text-xl font-semibold text-slate-900">{test.title}</h1>
-          <p className="mt-2 text-sm text-slate-500">
+      <div className="flex min-h-screen items-center justify-center bg-slate-50 dark:bg-slate-950 p-4 sm:p-8">
+        <div className="w-full max-w-md rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 text-center shadow-sm sm:p-8">
+          <h1 className="text-xl font-semibold text-slate-900 dark:text-slate-100">{test.title}</h1>
+          <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
             {notYetOpen
               ? `This test opens at ${new Date(test.starts_at as string).toLocaleString()}.`
               : `This test closed at ${new Date(test.ends_at as string).toLocaleString()}.`}

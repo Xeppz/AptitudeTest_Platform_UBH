@@ -421,12 +421,12 @@ export function TestRunner({
 
   if (submitted) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-50 p-4 sm:p-8">
-        <div className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-6 text-center shadow-sm sm:p-8">
-          <h1 className="text-xl font-semibold text-slate-900">
+      <div className="flex min-h-screen items-center justify-center bg-slate-50 dark:bg-slate-950 p-4 sm:p-8">
+        <div className="w-full max-w-md rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 text-center shadow-sm sm:p-8">
+          <h1 className="text-xl font-semibold text-slate-900 dark:text-slate-100">
             {autoSubmittedReason ? "Test auto-submitted" : "Test submitted"}
           </h1>
-          <p className="mt-2 text-sm text-slate-500">
+          <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
             {autoSubmittedReason ?? "Your answers have been recorded."}
           </p>
           <a
@@ -446,10 +446,10 @@ export function TestRunner({
     // test" path, which lands here directly without ever visiting verify),
     // so proctoring can't start until this is explicitly granted here too.
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-50 p-4 sm:p-8">
-        <div className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-6 text-center shadow-sm sm:p-8">
-          <h1 className="text-xl font-semibold text-slate-900">Camera & microphone required</h1>
-          <p className="mt-2 text-sm text-slate-500">
+      <div className="flex min-h-screen items-center justify-center bg-slate-50 dark:bg-slate-950 p-4 sm:p-8">
+        <div className="w-full max-w-md rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 text-center shadow-sm sm:p-8">
+          <h1 className="text-xl font-semibold text-slate-900 dark:text-slate-100">Camera & microphone required</h1>
+          <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
             Proctoring needs access to your camera and microphone for the whole test. This is
             required again here even if you already granted it on the previous screen.
           </p>
@@ -461,7 +461,7 @@ export function TestRunner({
             {mediaRequesting ? "Requesting…" : mediaError ? "Try again" : "Enable camera & microphone"}
           </button>
           {mediaError && (
-            <p className="mt-4 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+            <p className="mt-4 rounded-md border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950 px-3 py-2 text-sm text-red-700 dark:text-red-400">
               {mediaError} On a phone, make sure you opened this link directly in Chrome or Safari — not
               inside an app like Instagram, WhatsApp, or LinkedIn.
             </p>
@@ -475,17 +475,17 @@ export function TestRunner({
   const answered = questions.filter((q) => answers[q.id]?.selected).length;
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
       {warning && (
-        <div className="fixed left-1/2 top-4 z-50 -translate-x-1/2 rounded-md border border-amber-200 bg-amber-50 px-4 py-2 text-sm text-amber-800 shadow-md">
+        <div className="fixed left-1/2 top-4 z-50 -translate-x-1/2 rounded-md border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950 px-4 py-2 text-sm text-amber-800 dark:text-amber-300 shadow-md">
           {warning}
         </div>
       )}
 
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 bg-white px-4 py-3 md:px-6">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-4 py-3 md:px-6">
         <div className="min-w-0">
-          <h1 className="truncate text-sm font-semibold text-slate-900">{test.title}</h1>
-          <p className="text-xs text-slate-500">
+          <h1 className="truncate text-sm font-semibold text-slate-900 dark:text-slate-100">{test.title}</h1>
+          <p className="text-xs text-slate-500 dark:text-slate-400">
             {answered}/{questions.length} answered · {violationCount}/{test.max_violations} violations
           </p>
         </div>
@@ -493,9 +493,9 @@ export function TestRunner({
           <CameraPreview
             stream={stream}
             videoRef={videoRef}
-            className="h-10 w-14 rounded-md border border-slate-200 bg-slate-900 object-cover sm:h-14 sm:w-20"
+            className="h-10 w-14 rounded-md border border-slate-200 dark:border-slate-800 bg-slate-900 object-cover sm:h-14 sm:w-20"
           />
-          <span className="font-mono text-base tabular-nums text-slate-900 sm:text-lg">{formatTime(remainingSeconds)}</span>
+          <span className="font-mono text-base tabular-nums text-slate-900 dark:text-slate-100 sm:text-lg">{formatTime(remainingSeconds)}</span>
           <button
             onClick={() => {
               if (window.confirm("Submit the test now? You cannot change answers after submitting.")) {
@@ -518,7 +518,7 @@ export function TestRunner({
               ? "bg-purple-600 text-white"
               : state?.selected
                 ? "bg-blue-600 text-white"
-                : "bg-white text-slate-600 ring-1 ring-slate-200";
+                : "bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 ring-1 ring-slate-200 dark:ring-slate-800";
             return (
               <button
                 key={q.id}
@@ -534,17 +534,17 @@ export function TestRunner({
         </div>
 
         {question && (
-          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
+          <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 shadow-sm sm:p-5">
             <div className="flex items-center justify-between">
-              <span className="text-xs text-slate-500">
+              <span className="text-xs text-slate-500 dark:text-slate-400">
                 Question {currentIndex + 1} of {questions.length}
               </span>
-              <span className="rounded-md bg-blue-50 px-2 py-0.5 text-xs text-blue-700">
+              <span className="rounded-md bg-blue-50 dark:bg-blue-950 px-2 py-0.5 text-xs text-blue-700 dark:text-blue-300">
                 {question.category}
               </span>
             </div>
 
-            <p className="mt-3 text-base text-slate-900">{question.question_text}</p>
+            <p className="mt-3 text-base text-slate-900 dark:text-slate-100">{question.question_text}</p>
 
             <div className="mt-4 flex flex-col gap-2">
               {OPTION_LETTERS.map((letter) => {
@@ -556,19 +556,19 @@ export function TestRunner({
                     onClick={() => selectOption(question.id, letter)}
                     className={`flex items-center gap-3 rounded-md border px-3 py-2 text-left text-sm ${
                       isSelected
-                        ? "border-blue-500 bg-blue-50"
-                        : "border-slate-200 bg-white hover:border-slate-300"
+                        ? "border-blue-500 bg-blue-50 dark:bg-blue-950"
+                        : "border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-slate-300 dark:hover:border-slate-700"
                     }`}
                   >
-                    <span className="text-slate-400">{letter}</span>
-                    <span className="text-slate-900">{question[key] as string}</span>
+                    <span className="text-slate-400 dark:text-slate-500">{letter}</span>
+                    <span className="text-slate-900 dark:text-slate-100">{question[key] as string}</span>
                   </button>
                 );
               })}
             </div>
 
             <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-              <label className="flex items-center gap-2 text-xs text-slate-500">
+              <label className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
                 <input
                   type="checkbox"
                   checked={answers[question.id]?.marked ?? false}
@@ -581,14 +581,14 @@ export function TestRunner({
                 <button
                   onClick={() => goToQuestion(Math.max(0, currentIndex - 1))}
                   disabled={currentIndex === 0}
-                  className="rounded-md border border-slate-300 px-3 py-1.5 text-xs text-slate-700 hover:bg-slate-50 disabled:opacity-40"
+                  className="rounded-md border border-slate-300 dark:border-slate-700 px-3 py-1.5 text-xs text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-950 disabled:opacity-40"
                 >
                   Previous
                 </button>
                 <button
                   onClick={() => goToQuestion(Math.min(questions.length - 1, currentIndex + 1))}
                   disabled={currentIndex === questions.length - 1}
-                  className="rounded-md border border-slate-300 px-3 py-1.5 text-xs text-slate-700 hover:bg-slate-50 disabled:opacity-40"
+                  className="rounded-md border border-slate-300 dark:border-slate-700 px-3 py-1.5 text-xs text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-950 disabled:opacity-40"
                 >
                   Next
                 </button>

@@ -43,7 +43,7 @@ export default async function TakeTestPage({ params }: { params: Promise<{ id: s
           </p>
           <Link
             href="/student"
-            className="mt-6 inline-block rounded bg-neutral-100 px-4 py-2 text-sm font-medium text-neutral-900 hover:bg-white"
+            className="mt-6 inline-block rounded bg-neutral-100 px-4 py-2 text-sm font-medium text-neutral-900 hover:bg-white dark:hover:bg-slate-900"
           >
             Back to dashboard
           </Link>

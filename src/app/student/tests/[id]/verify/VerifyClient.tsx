@@ -56,29 +56,29 @@ export function VerifyClient({
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-50 p-4 sm:p-8">
-      <div className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-5 shadow-sm sm:p-8">
-        <h1 className="text-xl font-semibold text-slate-900">{title}</h1>
-        <p className="mt-1 text-sm text-slate-500">
+    <div className="flex min-h-screen items-center justify-center bg-slate-50 dark:bg-slate-950 p-4 sm:p-8">
+      <div className="w-full max-w-md rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-sm sm:p-8">
+        <h1 className="text-xl font-semibold text-slate-900 dark:text-slate-100">{title}</h1>
+        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
           {durationMinutes} minutes · camera and microphone verification required
         </p>
 
         {stream ? (
           <>
             <div className="mt-6">
-              <CameraPreview stream={stream} className="aspect-video w-full rounded-lg border border-slate-200 bg-slate-900" />
+              <CameraPreview stream={stream} className="aspect-video w-full rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-900" />
             </div>
 
             <div className="mt-3">
-              <p className="text-xs text-slate-500">Microphone level</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">Microphone level</p>
               <div className="mt-1">
                 <AudioLevelMeter stream={stream} />
               </div>
             </div>
           </>
         ) : (
-          <div className="mt-6 flex aspect-video w-full flex-col items-center justify-center gap-3 rounded-lg border border-slate-200 bg-slate-900 p-4 text-center">
-            <p className="text-sm text-slate-300">
+          <div className="mt-6 flex aspect-video w-full flex-col items-center justify-center gap-3 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-900 p-4 text-center">
+            <p className="text-sm text-slate-300 dark:text-slate-600">
               {requesting ? "Requesting camera & microphone access…" : "Camera and microphone access is required to take this test."}
             </p>
             <button
@@ -93,26 +93,26 @@ export function VerifyClient({
         )}
 
         {mediaError && (
-          <p className="mt-4 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+          <p className="mt-4 rounded-md border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950 px-3 py-2 text-sm text-red-700 dark:text-red-400">
             {mediaError} On a phone, make sure you opened this link directly in Chrome or Safari — not inside
             an app like Instagram, WhatsApp, or LinkedIn — and that camera access isn&apos;t blocked in your
             browser/site settings.
           </p>
         )}
         {startError && (
-          <p className="mt-4 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+          <p className="mt-4 rounded-md border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950 px-3 py-2 text-sm text-red-700 dark:text-red-400">
             {startError}
           </p>
         )}
 
         {!fullscreenSupported && (
-          <p className="mt-4 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-700">
+          <p className="mt-4 rounded-md border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950 px-3 py-2 text-sm text-amber-700 dark:text-amber-400">
             Your browser doesn&apos;t support fullscreen mode, so the test will run in the normal window.
             Avoid switching apps or leaving this tab — that&apos;s still tracked and logged as a violation.
           </p>
         )}
 
-        <ul className="mt-4 space-y-1 text-xs text-slate-500">
+        <ul className="mt-4 space-y-1 text-xs text-slate-500 dark:text-slate-400">
           {fullscreenSupported && (
             <li>The test runs in fullscreen. Exiting fullscreen is logged as a violation.</li>
           )}

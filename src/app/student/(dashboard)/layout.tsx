@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { KeyRound, LogOut } from "lucide-react";
 import { getAuthedProfile, getAuthedUser } from "@/lib/supabase/auth";
 import { SignOutForm } from "@/components/SignOutForm";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { SidebarNav } from "./SidebarNav";
 import { BottomNav } from "./BottomNav";
 
@@ -19,51 +20,56 @@ export default async function StudentDashboardLayout({
   if (profile?.must_change_password) redirect("/change-password");
 
   return (
-    <div className="flex min-h-screen flex-col bg-slate-50 md:flex-row">
+    <div className="flex min-h-screen flex-col bg-slate-50 dark:bg-slate-950 md:flex-row">
       {/* Mobile top bar — sidebar is desktop-only, this replaces it above md */}
-      <header className="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3 md:hidden">
+      <header className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-4 py-3 md:hidden">
         <Link href="/student" className="flex items-center gap-2">
           <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-600 text-sm font-semibold text-white">
             A
           </span>
-          <span className="text-sm font-semibold text-slate-900">AptiTest</span>
+          <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">AptiTest</span>
         </Link>
         <div className="flex items-center gap-1">
+          <ThemeToggle />
           <Link
             href="/change-password"
             aria-label="Change password"
-            className="flex h-8 w-8 items-center justify-center rounded-md text-slate-500 transition-colors hover:bg-slate-100"
+            className="flex h-8 w-8 items-center justify-center rounded-md text-slate-500 dark:text-slate-400 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800"
           >
             <KeyRound size={18} />
           </Link>
           <SignOutForm
             ariaLabel="Log out"
-            className="flex h-8 w-8 items-center justify-center rounded-md text-blue-600 transition-colors hover:bg-blue-50 hover:text-blue-700"
+            className="flex h-8 w-8 items-center justify-center rounded-md text-blue-600 dark:text-blue-400 transition-colors hover:bg-blue-50 dark:hover:bg-blue-950 hover:text-blue-700 dark:hover:text-blue-300"
           >
             <LogOut size={18} />
           </SignOutForm>
         </div>
       </header>
 
-      <aside className="hidden w-56 flex-col border-r border-slate-200 bg-white px-4 py-5 md:flex">
+      <aside className="hidden w-56 flex-col border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-4 py-5 md:flex">
         <Link href="/student" className="mb-8 flex items-center gap-2 px-1">
           <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-600 text-sm font-semibold text-white">
             A
           </span>
-          <span className="text-sm font-semibold text-slate-900">AptiTest</span>
+          <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">AptiTest</span>
         </Link>
 
         <SidebarNav />
 
         <div className="mt-auto">
-          <p className="truncate px-3 text-xs text-slate-400">{profile?.full_name}</p>
+          <p className="truncate px-3 text-xs text-slate-400 dark:text-slate-500">{profile?.full_name}</p>
+          <ThemeToggle
+            showLabel
+            className="mt-1 flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-left text-sm text-slate-500 dark:text-slate-400 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800"
+          />
           <Link
             href="/change-password"
-            className="mt-1 flex w-full items-center rounded-md px-3 py-2 text-left text-sm text-slate-500 transition-colors hover:bg-slate-100"
+            className="mt-1 flex w-full items-center rounded-md px-3 py-2 text-left text-sm text-slate-500 dark:text-slate-400 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800"
           >
             Change password
           </Link>
-          <SignOutForm className="mt-1 flex w-full items-center rounded-md px-3 py-2 text-left text-sm font-medium text-blue-600 transition-colors hover:bg-blue-50 hover:text-blue-700">
+          <SignOutForm className="mt-1 flex w-full items-center rounded-md px-3 py-2 text-left text-sm font-medium text-blue-600 dark:text-blue-400 transition-colors hover:bg-blue-50 dark:hover:bg-blue-950 hover:text-blue-700 dark:hover:text-blue-300">
             Log out
           </SignOutForm>
         </div>

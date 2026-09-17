@@ -27,18 +27,18 @@ export default async function ReviewTestPage({
 
   return (
     <div className="max-w-2xl">
-      <Link href="/teacher" className="text-sm text-slate-500 hover:text-slate-700">
+      <Link href="/teacher" className="text-sm text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300">
         ← Back to dashboard
       </Link>
 
       <div className="mt-2 flex items-center justify-between">
         <div>
-          <p className="text-2xl font-semibold text-slate-900">{test.title}</p>
-          <p className="text-sm text-slate-500">
+          <p className="text-2xl font-semibold text-slate-900 dark:text-slate-100">{test.title}</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400">
             {questions.length} question{questions.length === 1 ? "" : "s"} · status: {test.status} · publishing
             for: {test.target_year ? STUDENT_YEAR_LABELS[test.target_year] : "all years"}
           </p>
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-slate-500 dark:text-slate-400">
             {test.starts_at || test.ends_at
               ? `Open ${test.starts_at ? new Date(test.starts_at).toLocaleString() : "now"} → ${
                   test.ends_at ? new Date(test.ends_at).toLocaleString() : "no end"
@@ -54,7 +54,7 @@ export default async function ReviewTestPage({
           <QuestionEditor key={q.id} testId={test.id} question={q} index={index} />
         ))}
         {questions.length === 0 && (
-          <p className="text-sm text-slate-500">No questions left in this test.</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400">No questions left in this test.</p>
         )}
       </div>
     </div>

@@ -17,7 +17,7 @@ export function YearFilter() {
         else params.delete("year");
         router.push(`/teacher/students?${params.toString()}`);
       }}
-      className="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-700 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+      className="rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-1.5 text-sm text-slate-700 dark:text-slate-300 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
     >
       <option value="">All years</option>
       {STUDENT_YEARS.map((y) => (

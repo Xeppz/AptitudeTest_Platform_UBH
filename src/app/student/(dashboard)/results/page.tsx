@@ -60,8 +60,8 @@ export default async function ResultsPage() {
 
   return (
     <div>
-      <p className="text-2xl font-semibold text-slate-900">My results</p>
-      <p className="mt-1 text-sm text-slate-500">Completed tests, scores, and proctoring flags.</p>
+      <p className="text-2xl font-semibold text-slate-900 dark:text-slate-100">My results</p>
+      <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Completed tests, scores, and proctoring flags.</p>
 
       <div className="mt-6 flex flex-col gap-2">
         {sessions.map((session) => {
@@ -74,8 +74,8 @@ export default async function ResultsPage() {
           const content = (
             <>
               <div>
-                <p className="text-sm font-medium text-slate-900">{test?.title ?? "Untitled test"}</p>
-                <p className="text-xs text-slate-500">
+                <p className="text-sm font-medium text-slate-900 dark:text-slate-100">{test?.title ?? "Untitled test"}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
                   {session.submitted_at ? new Date(session.submitted_at).toLocaleDateString() : "—"} ·{" "}
                   {session.violation_count} violation{session.violation_count === 1 ? "" : "s"}
                 </p>
@@ -83,18 +83,18 @@ export default async function ResultsPage() {
               <div className="flex items-center gap-3">
                 {released ? (
                   score && (
-                    <span className="text-sm font-semibold text-blue-600">
+                    <span className="text-sm font-semibold text-blue-600 dark:text-blue-400">
                       {score.totalScore} / {score.maxScore}
                     </span>
                   )
                 ) : (
-                  <span className="text-xs font-medium text-slate-400">Pending release</span>
+                  <span className="text-xs font-medium text-slate-400 dark:text-slate-500">Pending release</span>
                 )}
                 <span
                   className={`rounded-md px-2.5 py-1 text-xs font-medium ${
                     session.status === "auto_submitted"
-                      ? "bg-amber-50 text-amber-700"
-                      : "bg-blue-50 text-blue-700"
+                      ? "bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-400"
+                      : "bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300"
                   }`}
                 >
                   {STATUS_LABEL[session.status as "submitted" | "auto_submitted"]}
@@ -107,21 +107,21 @@ export default async function ResultsPage() {
             <Link
               key={session.id}
               href={`/student/results/${session.id}`}
-              className="flex items-center justify-between rounded-lg border border-slate-200 bg-white px-4 py-3 hover:border-slate-300"
+              className="flex items-center justify-between rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-4 py-3 hover:border-slate-300 dark:hover:border-slate-700"
             >
               {content}
             </Link>
           ) : (
             <div
               key={session.id}
-              className="flex items-center justify-between rounded-lg border border-slate-200 bg-white px-4 py-3"
+              className="flex items-center justify-between rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-4 py-3"
             >
               {content}
             </div>
           );
         })}
         {sessions.length === 0 && (
-          <p className="text-sm text-slate-500">No completed tests yet.</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400">No completed tests yet.</p>
         )}
       </div>
     </div>

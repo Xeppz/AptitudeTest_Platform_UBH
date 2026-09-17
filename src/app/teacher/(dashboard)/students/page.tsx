@@ -32,9 +32,9 @@ function statusFor(
 }
 
 const TONE_STYLE: Record<StatusTone, string> = {
-  active: "bg-emerald-50 text-emerald-700",
-  done: "bg-blue-50 text-blue-700",
-  idle: "bg-slate-100 text-slate-500",
+  active: "bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-400",
+  done: "bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300",
+  idle: "bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400",
 };
 
 export default async function StudentsPage({
@@ -87,8 +87,8 @@ export default async function StudentsPage({
     <div>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <p className="text-2xl font-semibold text-slate-900">Students</p>
-          <p className="mt-1 text-sm text-slate-500">
+          <p className="text-2xl font-semibold text-slate-900 dark:text-slate-100">Students</p>
+          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
             {students.length} registered student{students.length === 1 ? "" : "s"}
             {yearFilter ? ` · ${STUDENT_YEAR_LABELS[yearFilter]}` : ""}.
           </p>
@@ -96,7 +96,7 @@ export default async function StudentsPage({
         <div className="flex items-center gap-2">
           <Link
             href="/teacher/students/import"
-            className="rounded-md border border-blue-200 px-3 py-1.5 text-sm font-medium text-blue-600 hover:bg-blue-50"
+            className="rounded-md border border-blue-200 dark:border-blue-800 px-3 py-1.5 text-sm font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950"
           >
             Import students
           </Link>
@@ -104,10 +104,10 @@ export default async function StudentsPage({
         </div>
       </div>
 
-      <div className="mt-6 overflow-x-auto rounded-lg border border-slate-200 bg-white">
+      <div className="mt-6 overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-slate-200 text-left text-xs text-slate-500">
+            <tr className="border-b border-slate-200 dark:border-slate-800 text-left text-xs text-slate-500 dark:text-slate-400">
               <th className="px-4 py-2 font-medium">Name</th>
               <th className="px-4 py-2 font-medium">Email</th>
               <th className="px-4 py-2 font-medium">Year</th>
@@ -120,13 +120,13 @@ export default async function StudentsPage({
             {students.map((s) => {
               const status = statusFor(s.id, sessionsByStudent, testTitleById);
               return (
-                <tr key={s.id} className="border-b border-slate-100 last:border-0 hover:bg-slate-50">
-                  <td className="px-4 py-2 font-medium text-slate-900">{s.full_name}</td>
-                  <td className="px-4 py-2 text-slate-500">{s.email}</td>
-                  <td className="px-4 py-2 text-slate-500">
+                <tr key={s.id} className="border-b border-slate-100 dark:border-slate-800 last:border-0 hover:bg-slate-50 dark:hover:bg-slate-950">
+                  <td className="px-4 py-2 font-medium text-slate-900 dark:text-slate-100">{s.full_name}</td>
+                  <td className="px-4 py-2 text-slate-500 dark:text-slate-400">{s.email}</td>
+                  <td className="px-4 py-2 text-slate-500 dark:text-slate-400">
                     {s.year ? STUDENT_YEAR_LABELS[s.year] : "—"}
                   </td>
-                  <td className="px-4 py-2 text-slate-500">
+                  <td className="px-4 py-2 text-slate-500 dark:text-slate-400">
                     {new Date(s.created_at).toLocaleDateString()}
                   </td>
                   <td className="px-4 py-2">
@@ -142,7 +142,7 @@ export default async function StudentsPage({
             })}
             {students.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-4 py-6 text-center text-slate-500">
+                <td colSpan={6} className="px-4 py-6 text-center text-slate-500 dark:text-slate-400">
                   {yearFilter ? "No students in this year yet." : "No students registered yet."}
                 </td>
               </tr>
